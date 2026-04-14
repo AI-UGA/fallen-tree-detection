@@ -1,1 +1,24 @@
+# Raw dataset - never commit
+data/raw/
+*.pt
+*.pth
+*.onnx
+*.tif
+*.TIF
 
+# Python
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large files
+*.zip
+*.tar.gz
