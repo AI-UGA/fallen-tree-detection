@@ -1,0 +1,49 @@
+# YOLOv8s-seg training configuration.
+#
+# Transcribed from the args.yaml that Ultralytics writes into the run
+# directory, so these are the arguments actually used, not a reconstruction.
+# Run name: yolov8s_seg_run3_v4_1600. This is the inventory model.
+#
+# Environment: Ultralytics 8.4.101, Python 3.12.13, PyTorch 2.11.0+cu128.
+# Hardware: NVIDIA A100. Wall time about 0.85 h.
+# Best epoch 151 of 200, selected on mask mAP50 = 0.373. Early-stopping
+# patience of 50 did not fire, which is consistent with 151: 151 + 50 > 200.
+
+task: segment
+mode: train
+model: yolov8s-seg.pt
+
+# Dataset path as recorded. The data itself is not released; see docs/DATA.md.
+data: datav4.yolov8/data.yaml
+
+epochs: 200
+patience: 50
+batch: -1                 # auto-selected to fit available VRAM
+imgsz: 1600
+device: '0'
+workers: 8
+
+optimizer: SGD
+lr0: 0.01
+cos_lr: true
+seed: 0
+deterministic: true
+single_cls: true          # the Roboflow export carries a dummy second class
+cls_remap: true
+pretrained: true
+amp: true
+rect: false
+fraction: 1.0
+close_mosaic: 20          # mosaic disabled for the last 20 epochs
+overlap_mask: true
+mask_ratio: 4
+dropout: 0.0
+
+# Validation settings as recorded for the training run. The published
+# comparison figures were not produced here; both models were rescored with
+# pycocotools at maxDets 700 and score 0.001. See src/cwd/evaluate.py.
+val: true
+split: val
+iou: 0.7
+max_det: 300
+plots: true

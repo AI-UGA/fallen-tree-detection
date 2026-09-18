@@ -1,0 +1,70 @@
+# Mask R-CNN training and evaluation configuration.
+#
+# Detectron2 does not write the merged config to its output directory, so this
+# file is reconstructed from the training arguments recorded in the project's
+# notebooks. The architecture block below is not a guess: it is the block used
+# to load model_final.pth for evaluation, and the checkpoint will not load with
+# matching tensor shapes if any of those four values differ from training.
+#
+# Environment: PyTorch 2.11.0+cu128, Detectron2 0.6, CUDA 12.8.
+# Hardware: NVIDIA A100-SXM4-80GB. Wall time about 1 h 45 min, 0.897 s/iter.
+# metrics.json confirms the final logged iteration as 6999, i.e. 7,000 total.
+
+_BASE_: "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+
+MODEL:
+  ROI_HEADS:
+    NUM_CLASSES: 1                      # single class: fallen_tree
+  # Architecture. Changing any of these invalidates the released weights.
+  ANCHOR_GENERATOR:
+    # Smaller anchors than the Detectron2 default. 81 percent of objects fall
+    # below 32 px after downscaling, so the default anchor set never covers
+    # most of the population.
+    SIZES: [[8, 16], [16, 32], [32, 64], [64, 128], [128, 256]]
+    # Elongated aspect ratios, because a fallen stem is a long thin object at
+    # an arbitrary orientation.
+    ASPECT_RATIOS: [[0.2, 0.5, 1.0, 2.0, 5.0]]
+  ROI_BOX_HEAD:
+    POOLER_RESOLUTION: 14               # doubled from the default 7
+  ROI_MASK_HEAD:
+    POOLER_RESOLUTION: 28               # doubled from the default 14
+
+DATASETS:
+  TRAIN: ["cwd_train"]
+  TEST: ["cwd_val"]
+
+DATALOADER:
+  NUM_WORKERS: 2
+  # Images with no annotations are dropped, which is why training saw 130 of
+  # the 146 images in the training split.
+  FILTER_EMPTY_ANNOTATIONS: true
+
+SOLVER:
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.0005
+  MAX_ITER: 7000
+  WARMUP_ITERS: 1000
+  STEPS: [5600, 6510]
+  AMP:
+    ENABLED: false                      # FP16 off; mixed precision produced NaN losses
+  CLIP_GRADIENTS:
+    ENABLED: true
+    CLIP_TYPE: "value"
+    CLIP_VALUE: 1.0
+
+# No random seed was set for this run, so it is not bit-reproducible.
+SEED: -1
+
+TEST:
+  # Detection cap for evaluation. COCO's default of 100 truncates dense scenes.
+  DETECTIONS_PER_IMAGE: 700
+
+INPUT:
+  # Test-time protocol, matched across both models so the comparison is fair.
+  MIN_SIZE_TEST: 1600
+  MAX_SIZE_TEST: 2133
+
+# Training additionally applied 90-degree rotations through a custom
+# augmentation list in the training script. That is not expressible in this
+# config file and is noted here so the record is complete. Note the asymmetry
+# with YOLOv8, which used mosaic, copy-paste and erasing instead.

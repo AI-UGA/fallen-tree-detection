@@ -1,0 +1,45 @@
+# Model weights. The Mask R-CNN checkpoint is 628 MB, well over GitHub's
+# 100 MB per-file limit, and Git LFS quota would be consumed immediately.
+# Weights are distributed through Zenodo instead. See docs/DATA.md.
+*.pth
+*.pt
+*.onnx
+
+# Raster imagery. The orthomosaic tiles are not released; the study site is
+# privately owned land.
+*.tif
+*.tiff
+*.jp2
+
+# Result and measurement tables. Several carry per-object UTM coordinates in
+# centroid_easting and centroid_northing, which must not be published.
+*.csv
+*.tsv
+
+# Any local data directory
+data/
+datasets/
+
+# Notebook outputs. A notebook committed with output embeds base64 images in
+# git history permanently and cannot be removed without rewriting history.
+.ipynb_checkpoints/
+
+# Figures are regenerated from code
+*.png
+*.tiff
+*.pdf
+*.eps
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Editors and OS
+.DS_Store
+.vscode/
+.idea/

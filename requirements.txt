@@ -1,0 +1,26 @@
+# Pinned to the versions actually used, read from notebook output captured
+# during the training and evaluation runs. Python 3.12.13.
+#
+# torch and detectron2 were confirmed from four independent notebooks, all
+# reporting 2.11.0+cu128 and 0.6. ultralytics was confirmed from the banner
+# Ultralytics prints on every run.
+
+torch==2.11.0
+torchvision
+ultralytics==8.4.101
+
+# Detectron2 has no PyPI release; install from source, as in the notebooks:
+#   pip install 'git+https://github.com/facebookresearch/detectron2.git'
+# The build takes several minutes and prints nothing for part of it. Do not
+# interrupt it; a partial build leaves an unimportable package.
+# detectron2==0.6
+
+numpy
+pandas
+scipy
+scikit-image
+matplotlib
+opencv-python-headless
+pycocotools
+rasterio
+pyyaml
