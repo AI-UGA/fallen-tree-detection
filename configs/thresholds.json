@@ -1,0 +1,27 @@
+{
+  "_comment": "Single source of truth for the classification rules. Must match Table 6 of the manuscript exactly. Lengths and widths in metres; elongation is length over mean width, dimensionless.",
+  "gsd_m_per_px": 0.0508,
+  "operating_confidence": 0.225,
+  "width_bias": 1.19,
+  "_width_bias_note": "Predicted masks are about 19 percent wider than hand-annotated masks at the median over 1,605 matched objects. Applied to classification only, never to reported volumes.",
+  "floors": {
+    "width_m": 0.15,
+    "_width_m_note": "Three pixels at the stated GSD.",
+    "length_m": 1.37,
+    "elongation": 3.0
+  },
+  "full_stem": {
+    "min_length_m": 6.78,
+    "min_elongation": 12.0,
+    "min_width_m": 0.25,
+    "max_width_m": 1.50
+  },
+  "test_order": [
+    "width_floor",
+    "length_floor",
+    "elongation_floor",
+    "tile_boundary_contact",
+    "full_stem_criteria"
+  ],
+  "_test_order_note": "Definitional. Reversing width and length changes the split between the two exclusion categories."
+}

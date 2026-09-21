@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "Coarse woody debris inventory from UAV imagery"
+message: "If you use this software, please cite both the software and the paper."
+type: software
+authors:
+  - given-names: "Dang"
+    family-names: "Hoang"
+    email: "danghai.hoang.work@gmail.com"
+    affiliation: "AI@UGA, University of Georgia"
+  - given-names: "Rishab"
+    family-names: "Subramaniyan"
+    affiliation: "AI@UGA, University of Georgia"
+  - given-names: "Owen"
+    family-names: "Norman"
+    affiliation: "Brown University"
+  - given-names: "Joey"
+    family-names: "Hattan"
+    affiliation: "AI@UGA, University of Georgia"
+  - given-names: "Roger C."
+    family-names: "Lowe III"
+    affiliation: "Warnell School of Forestry and Natural Resources, University of Georgia"
+repository-code: "https://github.com/AI-UGA/fallen-tree-detection"
+license: MIT
+version: "1.0.0"
+# TO FILL BEFORE THE SUBMISSION TAG: the Zenodo DOI for the weights and
+# annotation deposit. Use the Zenodo DOI here; the journal article DOI does not
+# exist until the paper is accepted and should be added later as a preferred
+# citation.
+# doi: "10.5281/zenodo.RECORD_ID"
