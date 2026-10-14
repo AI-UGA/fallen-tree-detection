@@ -12,6 +12,7 @@
   },
   "full_stem": {
     "min_length_m": 6.78,
+    "_min_length_m_note": "75th percentile of length when the rule set was fixed. Held fixed, not re-derived: the corrected site run gives 6.70 m.",
     "min_elongation": 12.0,
     "min_width_m": 0.25,
     "max_width_m": 1.50

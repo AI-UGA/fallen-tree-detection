@@ -10,7 +10,7 @@ truth. They must match Table 6 of the manuscript exactly.
 THE ORDER OF THE TESTS IS PART OF THE DEFINITION.
 The width floor is applied before the length floor. Reversing the two produces
 the same inventory count but a different split between the two exclusion
-categories (1,178 / 461 instead of 855 / 784), because objects failing both
+categories, because objects failing both
 floors are attributed to whichever test runs first. The ordering used here was
 confirmed by reproducing the published per-class counts exactly; see
 verify_against_csv() below.
@@ -104,8 +104,8 @@ def classify_row(
 
     # Objects cut by a tile edge are measured on a truncated mask, so their
     # length and volume are unreliable. They are excluded after the floors,
-    # which is why touches_tile_edge is True for more rows (810) than carry
-    # this label (751): the other 59 already failed a floor.
+    # which is why touches_tile_edge is True for more rows than carry this
+    # label: the remainder already failed a floor.
     if touches_tile_edge:
         return EXCL_BOUNDARY
 
@@ -154,7 +154,8 @@ def classify_frame(
     if "elongation" in frame.columns:
         elongations = frame["elongation"]
     elif "width_mean_m" in frame.columns:
-        elongations = elongation(frame["length_m"], frame["width_mean_m"])
+        # Elongation uses the bias-corrected width, as in the site run.
+        elongations = elongation(frame["length_m"], widths)
     else:
         raise KeyError("need either an elongation or a width_mean_m column")
 
@@ -181,18 +182,19 @@ def inventory_only(frame: pd.DataFrame, klass_column: str = "klass") -> pd.DataF
     return frame[frame[klass_column].isin(INVENTORY_CLASSES)]
 
 
-# Per-class counts of the released site run. These are published numbers; if
-# this module stops reproducing them, this module is wrong, not the numbers.
+# Per-class counts of the corrected site run (site_run_v3, October 2026).
+# These are published numbers; if this module stops reproducing them, this
+# module is wrong, not the numbers.
 EXPECTED_COUNTS = {
-    FRAGMENT: 15965,
-    FULL_STEM: 5240,
-    EXCL_LENGTH: 855,
-    EXCL_WIDTH: 784,
-    EXCL_BOUNDARY: 751,
-    EXCL_ELONGATION: 8,
+    FRAGMENT: 15562,
+    FULL_STEM: 5138,
+    EXCL_LENGTH: 695,
+    EXCL_WIDTH: 1084,
+    EXCL_BOUNDARY: 735,
+    EXCL_ELONGATION: 1,
 }
-EXPECTED_TOTAL = 23603
-EXPECTED_INVENTORY = 21205
+EXPECTED_TOTAL = 23215
+EXPECTED_INVENTORY = 20700
 
 
 def verify_against_csv(csv_path: str | Path, thresholds: dict | None = None) -> dict:

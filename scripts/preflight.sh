@@ -16,7 +16,7 @@ WARNINGS=0
 # repository's own tooling so that the pattern lists below do not match
 # themselves.
 FILES=$(git ls-files 2>/dev/null \
-  | grep -Ev '^(scripts/preflight\.sh|docs/NUMBERS\.md|docs/DATA\.md)$' \
+  | grep -Ev '^(scripts/preflight\.sh|docs/NUMBERS\.md|docs/DATA\.md|CHANGELOG\.md)$' \
   || true)
 
 if [ -z "$FILES" ]; then
@@ -27,7 +27,8 @@ if [ -z "$FILES" ]; then
     -not -path './.git/*' \
     -not -name 'preflight.sh' \
     -not -name 'NUMBERS.md' \
-    -not -name 'DATA.md')
+    -not -name 'DATA.md' \
+    -not -name 'CHANGELOG.md')
 fi
 
 report() {
@@ -105,7 +106,9 @@ report FAIL "notebooks have no stored output" "$(echo "$HITS" | sed '/^$/d')"
 #    (42.8, 38.5, 35.8, 25.4, ratio 1.52), density figures on the wrong basis
 #    (17.1, 37.4, 22.2, 19.0 m3/ha), the "upper bound" wording once attached to
 #    29.7, a MIN_SIDE=8 default, and 1024 as the reported evaluation resolution.
-SUPERSEDED='42\.8|38\.5|35\.8|25\.4|1\.52|17\.1 m3|37\.4 m3|22\.2 m3|19\.0 m3|upper bound|MIN_SIDE'
+#    Also the September 2026 site run, superseded by the colour-order fix
+#    (23,603 detections, 21,205 objects, 14,237 m3, 29.74 m3/ha).
+SUPERSEDED='42\.8|38\.5|35\.8|25\.4|1\.52|17\.1 m3|37\.4 m3|22\.2 m3|19\.0 m3|upper bound|MIN_SIDE|23,603|21,205|14,237|29\.74'
 HITS=$(grep -rnE "$SUPERSEDED" $FILES 2>/dev/null || true)
 report WARN "no superseded numbers" "$HITS"
 

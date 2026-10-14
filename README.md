@@ -17,14 +17,18 @@ site is privately owned land. See [docs/DATA.md](docs/DATA.md).
 | Quantity | Value |
 |---|---|
 | Imaged area | 478.7345 ha |
-| Total detections | 23,603 |
-| Inventory objects | 21,205 |
-| Inventory volume | 14,237.0 m3 |
-| Inventory density | 29.74 m3/ha, 44.3 objects/ha |
-| Full stems | 5,240 objects, 8,041.1 m3 |
-| Fragments | 15,965 objects, 6,195.9 m3 |
+| Total detections | 23,215 |
+| Inventory objects | 20,700 |
+| Inventory volume | 14,400.6 m3 |
+| Inventory density | 30.08 m3/ha, 43.2 objects/ha |
+| Full stems | 5,138 objects, 8,266.8 m3 |
+| Fragments | 15,562 objects, 6,133.8 m3 |
 
-Full stems are 24.7 percent of counted objects and 56.5 percent of volume.
+Full stems are 24.8 percent of counted objects and 57.4 percent of volume.
+
+These numbers come from the corrected site run of October 2026. An earlier run
+passed RGB tiles to a model that expects BGR arrays; see
+[CHANGELOG.md](CHANGELOG.md) and the inference note below.
 
 Volumes are estimator output. They have never been calibrated against field
 measurement. The object count is a floor rather than a ceiling, because recall
@@ -60,10 +64,13 @@ configs/
   yolov8s_seg.yaml    YOLOv8s-seg training arguments
 src/cwd/
   paths.py            locate the data root by content, never by hardcoded path
+  inference.py        convert raster tiles to the colour order the model expects
   volume_pipeline.py  per-object measurement and frustum volume
   classify.py         inventory and exclusion labels, with a self-test
   evaluate.py         unified pycocotools scoring for both models
   figures.py          figure style and save helpers
+notebooks/
+  02_detection.ipynb  site-wide inference, measurement and classification
 docs/
   DATA.md             what is released, what is not, how to request access
   NUMBERS.md          every locked number the code must reproduce
@@ -83,13 +90,23 @@ measurement table and asserts the published per-class counts.
 PYTHONPATH=src python -m cwd.classify path/to/cwd_classified_site.csv
 ```
 
-Expected: 23,603 rows, agreement 1.0000, and the six counts in
+Expected: 23,215 rows, agreement 1.0000, and the six counts in
 [docs/NUMBERS.md](docs/NUMBERS.md).
 
 The order of the threshold tests is definitional. Applying the length floor
-before the width floor yields the same inventory count but splits the
-exclusions 1,178 / 461 instead of 855 / 784. The assertion is what pins the
-order down.
+before the width floor yields the same inventory count but a different split
+between the length and width exclusions. The assertion is what pins the order
+down.
+
+## Inference input: colour order
+
+Rasterio reads the GeoTIFF bands in RGB order. Ultralytics treats a numpy
+array as BGR, the OpenCV convention, and converts it internally. An RGB array
+passed straight to `model.predict` is therefore inferred with red and blue
+swapped. On the validation split that lowers F1 from 0.481 to 0.427 at the
+operating threshold. Convert first with `cwd.inference.to_model_input`. Passing
+a file path instead of an array avoids the problem, because the library then
+reads the file itself.
 
 ## Classification rules
 

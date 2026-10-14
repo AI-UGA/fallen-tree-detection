@@ -1,7 +1,9 @@
 # Locked numbers
 
-Every figure here comes from the released site run. If code does not reproduce
-these, the code is wrong, not the numbers.
+Every figure here comes from the corrected site run of October 2026
+(`site_run_v3`). If code does not reproduce these, the code is wrong, not the
+numbers. The September run, which passed RGB tiles to a BGR-expecting model,
+is superseded; see CHANGELOG.md.
 
 ## Site and imagery
 
@@ -10,7 +12,7 @@ these, the code is wrong, not the numbers.
 | Imaged area | 478.7345 ha |
 | Bounding box area | 655.7 ha (73.0 percent imaged) |
 | Ground sample distance | 0.0508 m/px |
-| Tiles | 76, of which 6 produced no detections |
+| Tiles | 76, of which 7 produced no detections |
 | Quadrants | 300, each 2,500 x 2,500 px |
 | CRS | EPSG:26917, UTM zone 17N |
 
@@ -42,33 +44,38 @@ Recall ceiling 0.611 at threshold 0.05.
 
 | Quantity | Value |
 |---|---|
-| Total detections | 23,603 |
-| Total volume, detection basis | 14,801.8 m3 |
-| Inventory objects | 21,205 |
-| Inventory volume | 14,237.0 m3 |
-| Inventory density | 29.74 m3/ha, 44.3 objects/ha |
+| Total detections | 23,215 |
+| Total volume, detection basis | 14,879.3 m3 |
+| Inventory objects | 20,700 |
+| Inventory volume | 14,400.6 m3 |
+| Inventory density | 30.08 m3/ha, 43.2 objects/ha |
 
 Exclusions, by category:
 
 | Category | Objects | Volume (m3) |
 |---|---|---|
-| Below length threshold | 855 | 34.8 |
-| Below width threshold | 784 | 26.2 |
-| Insufficient elongation | 8 | 3.7 |
-| Tile boundary contact | 751 | 500.1 |
-| Total | 2,398 | 564.8 |
+| Below length threshold | 695 | 24.6 |
+| Below width threshold | 1,084 | 29.4 |
+| Insufficient elongation | 1 | 0.3 |
+| Tile boundary contact | 735 | 424.4 |
+| Total | 2,515 | 478.7 |
 
-Identities worth asserting: 14,801.8 - 564.8 = 14,237.0 exactly, and
-3,883 + 17,322 = 21,205.
+Identities worth asserting: 14,879.3 - 478.7 = 14,400.6 exactly, and
+3,668 + 17,032 = 20,700.
 
 ## Composition
 
 | Class | Objects | Volume (m3) | m3/ha |
 |---|---|---|---|
-| Full stem | 5,240 | 8,041.1 | 16.80 |
-| Fragment | 15,965 | 6,195.9 | 12.94 |
+| Full stem | 5,138 | 8,266.8 | 17.27 |
+| Fragment | 15,562 | 6,133.8 | 12.81 |
 
-Full stems are 24.7 percent of counted objects and 56.5 percent of volume.
+Full stems are 24.8 percent of counted objects and 57.4 percent of volume.
+
+Length thresholds are fixed at the values in configs/thresholds.json. The
+full stem cut of 6.78 m was the 75th percentile of length when the rule set
+was fixed; in the corrected run that percentile is 6.70 m, and the cut was
+deliberately not re-derived.
 
 ## Annotated versus unannotated quadrants
 
@@ -76,8 +83,11 @@ Inventory basis.
 
 | Region | Area | Inventory objects | Volume (m3) | m3/ha |
 |---|---|---|---|---|
-| Unannotated | 152.929 ha | 3,883 | 2,489.8 | 16.3 |
-| Annotated | 325.806 ha | 17,322 | 11,747.2 | 36.1 |
+| Unannotated | 152.929 ha | 3,668 | 2,528.3 | 16.5 |
+| Annotated | 325.806 ha | 17,032 | 11,872.3 | 36.4 |
+
+Per-tile inventory density: 0 to 185.2 objects/ha, median 36.2, mean 42.7;
+volume up to 224.7 m3/ha.
 
 ## Annotation
 
@@ -99,8 +109,17 @@ volumes.
 
 ## Mask quality, site run
 
-18.1 percent multi-component, 12.5 percent branched centreline, 67.6 percent
-clean on both. On the validation run, 84.6 percent carried no flag.
+All detections. 16.8 percent multi-component, 11.5 percent branched
+centerline. The two overlap: 74.6 percent are clean on both, and 69.3 percent
+carry no quality flag of any kind. Median length 3.17 m for multi-component
+masks against 4.69 m for the rest. On the validation run, 84.6 percent carried
+no flag.
+
+## Inference settings
+
+imgsz 1600, conf 0.225, NMS IoU 0.6, max_det 700, retina_masks off. Tiles are
+converted RGB to BGR before `model.predict`. Weights:
+`04. Results/YOLOv8/best.pt` in the project data root.
 
 ## Environment
 

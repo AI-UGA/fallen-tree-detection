@@ -9,21 +9,21 @@ label from a measurement table and asserts the published per-class counts:
 python -m cwd.classify /path/to/cwd_classified_site.csv
 ```
 
-Expected output: 23,603 rows, agreement 1.0000, and these counts.
+Expected output: 23,215 rows, agreement 1.0000, and these counts.
 
 ```
-Full stem                              5,240
-Fragment                              15,965
-Excluded, below length threshold         855
-Excluded, below width threshold          784
-Excluded, insufficient elongation          8
-Excluded, tile boundary contact          751
+Full stem                              5,138
+Fragment                              15,562
+Excluded, below length threshold         695
+Excluded, below width threshold        1,084
+Excluded, insufficient elongation          1
+Excluded, tile boundary contact          735
 ```
 
 This is a real test, not a formality. The order of the threshold tests is
 definitional: applying the length floor before the width floor gives the same
-inventory count but splits the exclusions 1,178 / 461 instead of 855 / 784.
-The assertion is what establishes the order.
+inventory count but a different split between the length and width
+exclusions. The assertion is what establishes the order.
 
 ## What needs the imagery
 
@@ -33,7 +33,9 @@ The site-wide inventory. The 76 orthomosaic tiles are not released; see
 ## Pipeline order
 
 1. Tile the orthomosaic into 2,500 x 2,500 px quadrants, four per tile.
-2. Run the detector at the operating threshold, 0.225.
+2. Run the detector at the operating threshold, 0.225, converting each
+   quadrant from RGB to BGR first with `cwd.inference.to_model_input`.
+   `notebooks/02_detection.ipynb` does steps 1 to 5 in one pass.
 3. Measure each instance with `volume_pipeline.measure_tree`, adding the
    tile-level fields (`source_tile`, `quadrant`, `centroid_easting`,
    `centroid_northing`, `mask_area_m2`, `touches_tile_edge`, `was_annotated`,
@@ -59,8 +61,12 @@ column anywhere in this project.
 back as numpy bool or as the strings `'True'` and `'False'`, and a groupby on
 the string form fails silently. `cwd.classify.coerce_bool` handles it.
 
-**Handle empty frames in per-tile loops.** Six of the 76 tiles produced no
+**Handle empty frames in per-tile loops.** Seven of the 76 tiles produced no
 detections. The quadrant record still has rows for them.
+
+**Check colour order whenever an array goes into a model.** Rasterio and
+matplotlib give RGB; Ultralytics expects BGR arrays. File paths are safe
+because the library reads them itself. This cost one full site run.
 
 **Never hardcode the project path.** Use `cwd.paths.find_root`, which searches
 by content, since absolute Drive paths differ between accounts and shortcuts.

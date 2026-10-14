@@ -2,6 +2,7 @@
 
 Modules:
     paths             locate the project data root by content
+    inference         convert raster tiles to the model's colour order
     volume_pipeline   per-object measurement and frustum volume
     classify          assign inventory and exclusion labels
     evaluate          unified pycocotools scoring of both detectors
