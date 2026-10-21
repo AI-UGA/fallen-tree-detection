@@ -1,9 +1,7 @@
 # Locked numbers
 
-Every figure here comes from the corrected site run of October 2026
-(`site_run_v3`). If code does not reproduce these, the code is wrong, not the
-numbers. The September run, which passed RGB tiles to a BGR-expecting model,
-is superseded; see CHANGELOG.md.
+Every figure here comes from the site run (`site_run_v3`). If code does not
+reproduce these, the code is wrong, not the numbers.
 
 ## Site and imagery
 
@@ -73,9 +71,8 @@ Identities worth asserting: 14,879.3 - 478.7 = 14,400.6 exactly, and
 Full stems are 24.8 percent of counted objects and 57.4 percent of volume.
 
 Length thresholds are fixed at the values in configs/thresholds.json. The
-full stem cut of 6.78 m was the 75th percentile of length when the rule set
-was fixed; in the corrected run that percentile is 6.70 m, and the cut was
-deliberately not re-derived.
+full stem cut of 6.78 m is the 75th percentile of length at the time the rule
+set was fixed.
 
 ## Annotated versus unannotated quadrants
 

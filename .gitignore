@@ -43,3 +43,8 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+
+# Project page images are published on purpose
+!docs/assets/img/
+!docs/assets/img/*.png
+!docs/assets/img/*.jpg

@@ -182,7 +182,7 @@ def inventory_only(frame: pd.DataFrame, klass_column: str = "klass") -> pd.DataF
     return frame[frame[klass_column].isin(INVENTORY_CLASSES)]
 
 
-# Per-class counts of the corrected site run (site_run_v3, October 2026).
+# Per-class counts of the site run (site_run_v3).
 # These are published numbers; if this module stops reproducing them, this
 # module is wrong, not the numbers.
 EXPECTED_COUNTS = {

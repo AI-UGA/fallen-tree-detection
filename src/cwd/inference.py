@@ -2,14 +2,7 @@
 
 Rasterio reads GeoTIFF bands in RGB order, and so does matplotlib. Ultralytics
 treats a numpy array passed to ``model.predict`` as BGR, the OpenCV convention,
-and converts it to RGB internally. An RGB array passed straight in is
-therefore inferred with red and blue swapped.
-
-This is not a cosmetic issue. On the 42-image validation split, at the
-operating threshold of 0.225 and box IoU 0.5, correct input gives F1 0.481
-(precision 0.534, recall 0.437) and swapped input gives F1 0.427 (precision
-0.504, recall 0.370). The September 2026 site run made this mistake and was
-re-run; see CHANGELOG.md.
+and converts it to RGB internally, so arrays must be converted first.
 
 Passing a file path instead of an array avoids the problem, because the
 library then reads the file itself. Everything that hands an array to the

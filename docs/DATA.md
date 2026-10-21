@@ -52,7 +52,7 @@ Two checks, both of which have to pass:
    coordinates.
 
 `scripts/preflight.sh` checks for both of these, plus hardcoded Drive paths,
-email addresses, credentials, oversized files, superseded numbers and notebook
+email addresses, credentials, oversized files, outdated numbers and notebook
 outputs. Run it before every commit.
 
 ## Reproducing without the imagery

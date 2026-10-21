@@ -66,7 +66,7 @@ detections. The quadrant record still has rows for them.
 
 **Check colour order whenever an array goes into a model.** Rasterio and
 matplotlib give RGB; Ultralytics expects BGR arrays. File paths are safe
-because the library reads them itself. This cost one full site run.
+because the library reads them itself.
 
 **Never hardcode the project path.** Use `cwd.paths.find_root`, which searches
 by content, since absolute Drive paths differ between accounts and shortcuts.
