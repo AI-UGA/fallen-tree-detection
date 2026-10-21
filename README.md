@@ -2,12 +2,15 @@
 
 # Fallen wood after Hurricane Helene, measured from the air
 
-**A drone-based inventory of coarse woody debris on a 479-hectare windthrow site in the Georgia Coastal Plain**
+**A drone survey of 479 hectares of storm-damaged forest in the Georgia Coastal Plain, turned into a piece-by-piece inventory of fallen wood**
 
-[![Project page](https://img.shields.io/badge/project_page-live-1f5c46)](https://ai-uga.github.io/fallen-tree-detection/)
-[![Model](https://img.shields.io/badge/model-YOLOv8s--seg-1d9e75)](configs/yolov8s_seg.yaml)
-[![Python](https://img.shields.io/badge/python-3.12-3776ab)](requirements.txt)
-[![License](https://img.shields.io/badge/code-MIT-555555)](LICENSE)
+### [🌲 Open the interactive site](https://ai-uga.github.io/fallen-tree-detection/)
+
+Density map, statistics and figures, no install needed
+
+[![Live site](https://img.shields.io/badge/live_site-ai--uga.github.io-17342a?style=for-the-badge)](https://ai-uga.github.io/fallen-tree-detection/)
+[![Model](https://img.shields.io/badge/model-YOLOv8s--seg-1d9e75?style=for-the-badge)](configs/yolov8s_seg.yaml)
+[![License](https://img.shields.io/badge/code-MIT-555555?style=for-the-badge)](LICENSE)
 
 AI@UGA and the Warnell School of Forestry and Natural Resources, University of Georgia
 
@@ -17,14 +20,17 @@ AI@UGA and the Warnell School of Forestry and Natural Resources, University of G
 
 | 20,700 | 14,401 m³ | 30.1 m³/ha | 478.7 ha |
 |:---:|:---:|:---:|:---:|
-| pieces of downed wood counted | of wood on the ground | average across the site | surveyed at 5 cm per pixel |
+| pieces of fallen wood | of wood on the ground | on average | surveyed at 5 cm per pixel |
 
-Hurricane Helene left thousands of trees on the ground across private
-forestland in Georgia. Counting and measuring that wood on foot is slow and
-dangerous. This repository turns one drone survey into a per-piece inventory:
-every detected log has an outline, a length, a volume and a class.
+Hurricane Helene flattened stands across private forestland in Georgia.
+Measuring the fallen wood on foot is slow and dangerous. This project does
+it from one drone survey: a segmentation model finds the fallen pieces,
+then each piece is measured and sorted by shape.
 
-**[Explore the interactive density map](https://ai-uga.github.io/fallen-tree-detection/)**
+> [!TIP]
+> The [project site](https://ai-uga.github.io/fallen-tree-detection/) has an
+> interactive map of where the wood lies. Tap any square to see its volume
+> and piece counts.
 
 ## From drone image to inventory
 
@@ -36,9 +42,9 @@ every detected log has an outline, a length, a volume and a class.
 <td width="25%"><img src="docs/assets/img/step4_classify.jpg" alt="Pieces coloured by class"></td>
 </tr>
 <tr>
-<td><b>1. Fly and tile.</b> The orthomosaic is cut into 2,500 px squares, 127 m on a side.</td>
-<td><b>2. Detect.</b> YOLOv8s-seg traces every piece of fallen wood.</td>
-<td><b>3. Measure.</b> Centreline, widths along it, and volume from stacked frusta.</td>
+<td><b>1. Fly and tile.</b> The drone photos are stitched into one map and cut into 127 m squares.</td>
+<td><b>2. Detect.</b> YOLOv8s-seg outlines each piece of fallen wood.</td>
+<td><b>3. Measure.</b> Length along a centreline, width along the piece, then volume.</td>
 <td><b>4. Classify.</b> <img src="https://img.shields.io/badge/-full_stem-1d9e75" alt="green"> <img src="https://img.shields.io/badge/-fragment-ef9f27" alt="orange"> <img src="https://img.shields.io/badge/-set_aside-b4b2a9" alt="grey"></td>
 </tr>
 </table>
@@ -59,10 +65,10 @@ Across the site it finds 23,215 objects.
 
 ### 3. Measure
 
-Each mask is reduced to a centreline. Widths are sampled perpendicular to
-it at regular intervals, and volume is integrated as a chain of conical
-frusta along the length. Every object gets a length, a mean width and a
-volume, independent of its neighbours.
+Each outline is reduced to a centreline. Width is measured across the
+piece at regular steps along it, and volume is the sum of short tapered
+sections (conical frusta). Every piece gets its own length, mean width and
+volume.
 
 ### 4. Classify
 
@@ -82,8 +88,8 @@ are set aside and reported separately.
 | Fragments | 15,562 | 6,133.8 m³ | 42.6% |
 | **Inventory** | **20,700** | **14,400.6 m³** | |
 
-Full stems are a quarter of the pieces but carry more than half of the
-volume.
+Full stems are only a quarter of the pieces but hold more than half of the
+wood.
 
 <table>
 <tr>
@@ -214,7 +220,7 @@ detect.
 
 ## Team
 
-Dang Hoang, Rishab Subramaniyan, Owen Norman, Joey Hattan, and
+Dang Hoang (project manager), Rishab Subramaniyan, Owen Norman, Joey Hattan, and
 Roger C. Lowe III (corresponding author).
 AI@UGA and the Warnell School of Forestry and Natural Resources, University
 of Georgia; Brown University.
@@ -223,3 +229,11 @@ of Georgia; Brown University.
 
 See [`CITATION.cff`](CITATION.cff). The paper is in preparation. Code is MIT
 licensed; the data deposit is CC BY 4.0.
+
+---
+
+<div align="center">
+
+**[Visit the project site](https://ai-uga.github.io/fallen-tree-detection/)**
+
+</div>

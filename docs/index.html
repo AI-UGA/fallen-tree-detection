@@ -19,11 +19,6 @@
   --frag: #ef9f27;
   --focus: #1d6fd1;
   --accent: #1f5c46;
-  --ramp-0: #eceee4;
-  --ramp-1: #d8c69e;
-  --ramp-2: #b98f58;
-  --ramp-3: #85542a;
-  --ramp-4: #4a2c14;
   --serif: "Newsreader", Georgia, "Times New Roman", serif;
   --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
@@ -31,41 +26,46 @@
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #141a17;
-    --ink: #e3e9e4;
-    --muted: #9aa8a0;
-    --rule: #2c3631;
-    --stem: #3cc196;
-    --frag: #f2ae4a;
-    --focus: #6aa8ff;
-    --accent: #86cdb0;
-    --ramp-0: #1f2723;
-    --ramp-1: #4a3b26;
-    --ramp-2: #7f5a2f;
-    --ramp-3: #c0873f;
-    --ramp-4: #f2c57d;
-    color-scheme: dark;
-  }
-}
 :root[data-theme="dark"] {
-  --paper: #141a17;
-  --ink: #e3e9e4;
-  --muted: #9aa8a0;
-  --rule: #2c3631;
+  --paper: #1f2925;
+  --ink: #e8eee9;
+  --muted: #aab8b0;
+  --rule: #3a4842;
   --stem: #3cc196;
   --frag: #f2ae4a;
   --focus: #6aa8ff;
   --accent: #86cdb0;
-  --ramp-0: #1f2723;
-  --ramp-1: #4a3b26;
-  --ramp-2: #7f5a2f;
-  --ramp-3: #c0873f;
-  --ramp-4: #f2c57d;
   color-scheme: dark;
 }
 html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+/* The hero sits on a deep pine band so the warm map colours stand out. */
+.band {
+  --paper: #17342a;
+  --ink: #f1f5f2;
+  --muted: #b3c8bd;
+  --rule: #2f5244;
+  --accent: #f6c055;
+  --focus: #ffd27a;
+  --ramp-0: #43513f;
+  --ramp-1: #6c6638;
+  --ramp-2: #96712c;
+  --ramp-3: #c47f23;
+  --ramp-4: #e89b2c;
+  --ramp-5: #f7c158;
+  --ramp-6: #ffeaa8;
+  background: var(--paper);
+  color: var(--ink);
+}
+:root[data-theme="dark"] .band { --paper: #142c23; }
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  background: #17342a; z-index: 10;
+}
+main > section:first-child { border-top: 0; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; margin: 0 0 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); }
+.kpis b { display: block; font: 600 clamp(1.7rem, 2.8vw, 2.3rem)/1.05 var(--serif); color: var(--accent); }
+.kpis span { display: block; margin-top: .35rem; font-size: .875rem; color: var(--muted); line-height: 1.35; }
 *, *::before, *::after { box-sizing: inherit; }
 body {
   margin: 0;
@@ -87,7 +87,7 @@ a:hover { text-decoration-thickness: 2px; }
   gap: 1rem; flex-wrap: wrap;
   padding: 1.25rem 0; font-size: .875rem; color: var(--muted);
 }
-.top nav { display: flex; gap: 1.25rem; }
+.top nav { display: flex; gap: 1.25rem; align-items: center; }
 
 /* Hero: the map is the subject, so it gets the room. */
 .hero {
@@ -98,7 +98,7 @@ a:hover { text-decoration-thickness: 2px; }
   padding: 2rem 0 4rem;
 }
 h1 {
-  font: 600 clamp(2.1rem, 4.2vw, 3.3rem)/1.06 var(--serif);
+  font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif);
   letter-spacing: -.015em;
   margin: 0 0 1.25rem;
   font-variation-settings: "opsz" 72;
@@ -122,15 +122,19 @@ h1 {
 .map { position: relative; }
 .map svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
 .map svg:focus-visible { outline: 2px solid var(--focus); outline-offset: 6px; border-radius: 2px; }
-.cell { stroke: var(--paper); stroke-width: .7; cursor: pointer; }
-.cell.sel { stroke: var(--ink); stroke-width: 1.6; }
+.cell { cursor: pointer; }
+.cell:hover { stroke: var(--ink); stroke-width: .8; }
+.cell.sel { stroke: var(--ink); stroke-width: 1.4; }
 
 .map-foot {
   display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
   gap: 1.5rem; margin-top: 1rem; align-items: start;
 }
-.legend-bar { height: 10px; border-radius: 2px; }
-.legend-ticks { display: flex; justify-content: space-between; font-size: .8125rem; color: var(--muted); margin-top: .35rem; }
+.legend { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.legend i { display: block; height: 12px; border-radius: 2px; }
+.legend span { display: block; font-size: .75rem; color: var(--muted); margin-top: .3rem; white-space: nowrap; }
+.theme-btn { font: 500 .875rem/1 var(--sans); color: inherit; background: none; border: 1px solid var(--rule); border-radius: 999px; padding: .35rem .75rem; cursor: pointer; }
+.theme-btn:hover { border-color: var(--muted); }
 .legend-caption { font-size: .8125rem; color: var(--muted); margin-top: .5rem; }
 .readout { font-size: .9375rem; min-height: 4.8em; }
 .readout strong { font-weight: 600; }
@@ -218,20 +222,22 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 </style>
 </head>
 <body>
+<div class="band">
 <div class="wrap">
   <header class="top">
     <span>AI@UGA and the Warnell School of Forestry and Natural Resources, University of Georgia</span>
     <nav>
       <a href="https://github.com/AI-UGA/fallen-tree-detection">Code</a>
       <a href="#team">Team</a>
+      <button type="button" class="theme-btn" id="theme-toggle">Dark mode</button>
     </nav>
   </header>
 
-  <main>
     <div class="hero">
       <div>
         <h1 id="headline">Fallen wood after Hurricane Helene, measured from the air</h1>
         <p class="lead" id="lead">We flew a drone over a windthrow site in the Georgia Coastal Plain and used instance segmentation to find, measure and classify the downed wood. The map shows how much lies on the ground in each square of the site.</p>
+        <div class="kpis" id="kpis"></div>
         <dl class="facts" id="facts"></dl>
       </div>
 
@@ -248,27 +254,30 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         <div class="map" id="map"><p class="notice" id="map-notice">Loading site data.</p></div>
         <div class="map-foot">
           <div>
-            <div class="legend-bar" id="legend-bar"></div>
-            <div class="legend-ticks"><span id="legend-min">0</span><span id="legend-max"></span></div>
+            <div class="legend" id="legend"></div>
             <div class="legend-caption" id="legend-caption"></div>
           </div>
           <div class="readout" id="readout" aria-live="polite"></div>
         </div>
       </figure>
     </div>
+</div>
+</div>
 
+<div class="wrap">
+  <main>
     <section aria-labelledby="how">
       <h2 id="how">How it works</h2>
-      <p class="section-lead">One pass from drone imagery to an inventory table, with every piece measured individually.</p>
+      <p class="section-lead">From drone photos to a table of every fallen piece, in four steps.</p>
       <ol class="steps">
-        <li><img src="assets/img/step1_image.jpg" alt="Drone image of a patch of storm-damaged forest with fallen trunks on the ground" loading="lazy" onerror="this.remove()"><h3>Fly and tile</h3><p id="step-fly">A drone photographs the site after the storm. The stitched orthomosaic is cut into squares of 2,500 pixels.</p></li>
-        <li><img src="assets/img/step2_detect.jpg" alt="The same patch with every detected piece of wood outlined" loading="lazy" onerror="this.remove()"><h3>Detect</h3><p>A YOLOv8 segmentation model, trained on 15,809 hand-drawn outlines, traces each piece of fallen wood.</p></li>
-        <li><img src="assets/img/step3_measure.jpg" alt="One fallen trunk with its outline and centreline, labelled with length, width and volume" loading="lazy" onerror="this.remove()"><h3>Measure</h3><p>Each outline gets a centreline and widths sampled along it. Volume comes from stacking cone sections, or frusta, along the length.</p></li>
-        <li><img src="assets/img/step4_classify.jpg" alt="The patch with full stems in green, fragments in orange and set-aside pieces in grey" loading="lazy" onerror="this.remove()"><h3>Classify</h3><p>Long, slender pieces are full stems and the rest are fragments. Pieces cut by a tile edge or too small to measure are set aside.</p></li>
+        <li><img src="assets/img/step1_image.jpg" alt="Drone image of a patch of storm-damaged forest with fallen trunks on the ground" loading="lazy" onerror="this.remove()"><h3>Fly and tile</h3><p id="step-fly">A drone photographs the site after the storm. The photos are stitched into one map and cut into squares.</p></li>
+        <li><img src="assets/img/step2_detect.jpg" alt="The same patch with every detected piece of wood outlined" loading="lazy" onerror="this.remove()"><h3>Detect</h3><p>A YOLOv8 segmentation model, trained on 15,809 hand-drawn outlines, outlines each piece of fallen wood.</p></li>
+        <li><img src="assets/img/step3_measure.jpg" alt="One fallen trunk with its outline and centreline, labelled with length, width and volume" loading="lazy" onerror="this.remove()"><h3>Measure</h3><p>A centreline is drawn through each outline and the width is measured along it. Volume is the sum of short tapered sections along the piece.</p></li>
+        <li><img src="assets/img/step4_classify.jpg" alt="The patch with full stems in green, fragments in orange and set-aside pieces in grey" loading="lazy" onerror="this.remove()"><h3>Classify</h3><p>Long, slender pieces are full stems; the rest are fragments. Pieces cut off by a square's edge, or too small to measure, are set aside.</p></li>
       </ol>
       <figure class="wide">
         <img src="assets/img/fig_workflow.png" alt="Workflow diagram from drone survey to inventory table" loading="lazy" onerror="this.closest('figure').remove()">
-        <figcaption>The full workflow, as drawn for the paper.</figcaption>
+        <figcaption>The full workflow.</figcaption>
       </figure>
     </section>
 
@@ -276,7 +285,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       <div class="split">
         <div>
           <h2 id="comp">A quarter of the pieces, most of the wood</h2>
-          <p class="section-lead" id="comp-lead">Full stems are long and slender enough to be whole fallen trees. They are a minority of the pieces but carry most of the volume.</p>
+          <p class="section-lead" id="comp-lead">Full stems are the long, slender pieces. There are few of them, but they hold most of the wood.</p>
           <div class="key"><span><i style="background:var(--stem)"></i>Full stems</span><span><i style="background:var(--frag)"></i>Fragments</span></div>
         </div>
         <div id="shares"></div>
@@ -285,13 +294,13 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 
     <section aria-labelledby="len">
       <h2 id="len">Piece length</h2>
-      <p class="section-lead" id="len-lead">Counted pieces by length, in one-metre bins. The dashed line marks the minimum length for a full stem.</p>
+      <p class="section-lead" id="len-lead">How many pieces fall in each one-metre length range. The dashed line is the minimum length for a full stem.</p>
       <div class="hist" id="hist"></div>
     </section>
 
     <section aria-labelledby="figs" id="figs-section">
       <h2 id="figs">Figures from the paper</h2>
-      <p class="section-lead">Detection examples and the main results, at web size.</p>
+      <p class="section-lead">Detection examples and the main results.</p>
       <div class="gallery">
         <figure><img src="assets/img/fig_gallery.jpg" alt="Examples of detected fallen wood on drone imagery" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Detection examples.</figcaption></figure>
         <figure><img src="assets/img/fig_density.png" alt="Map of wood volume density across the site on an anonymized grid" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Volume density across the site.</figcaption></figure>
@@ -302,7 +311,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 
     <section aria-labelledby="nums">
       <h2 id="nums">By the numbers</h2>
-      <p class="section-lead">Lengths, widths and volumes are measured per piece. Typical values are medians.</p>
+      <p class="section-lead">Every piece is measured on its own. “Typical” means the median.</p>
       <div class="stats" id="stats"></div>
       <div class="conc">
         <div>
@@ -318,7 +327,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         <div>
           <h2 id="team">Team</h2>
           <ul class="people">
-            <li>Dang Hoang <span>AI@UGA, University of Georgia</span></li>
+            <li>Dang Hoang <span>Project Manager, AI@UGA, University of Georgia</span></li>
             <li>Rishab Subramaniyan <span>AI@UGA, University of Georgia</span></li>
             <li>Owen Norman <span>Brown University</span></li>
             <li>Joey Hattan <span>AI@UGA, University of Georgia</span></li>
@@ -372,10 +381,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
   function ramp() {
-    var cs = getComputedStyle(document.documentElement);
-    var stops = [];
-    for (var i = 0; i < 5; i++) stops.push(hexToRgb(cs.getPropertyValue("--ramp-" + i) || "#888888"));
-    return stops;
+    // Same values as --ramp-0..6 on .band; kept here so the map never depends on CSS support.
+    return ["#43513f", "#6c6638", "#96712c", "#c47f23", "#e89b2c", "#f7c158", "#ffeaa8"].map(hexToRgb);
   }
   function colourAt(stops, t) {
     t = Math.max(0, Math.min(1, t));
@@ -392,12 +399,20 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
   function fillFacts(s) {
     $("headline").textContent = fmt(s.pieces, 0) + " pieces of fallen wood, measured from the air";
     $("lead").textContent =
-      "After Hurricane Helene, we flew a drone over " + fmt(s.imaged_ha, 0) +
-      " hectares of damaged forest in the Georgia Coastal Plain and used instance segmentation to find, measure and classify the downed wood. The map shows how much lies on the ground in each square of the site.";
+      "After Hurricane Helene, a drone surveyed " + fmt(s.imaged_ha, 0) +
+      " hectares of damaged forest in the Georgia Coastal Plain. A segmentation model found each piece of fallen wood, and every piece was measured and sorted by shape. The map shows how much wood lies in each square of the site.";
     var side = Math.round(2500 * s.gsd_m);
+    var k = $("kpis");
+    k.innerHTML = "";
+    [[fmt(s.pieces, 0), "pieces counted"],
+     [fmt(s.volume_m3, 0) + " m³", "of wood on the ground"],
+     [fmt(s.density_m3_ha, 1), "m³ per hectare on average"]].forEach(function (x) {
+      var d = document.createElement("div");
+      var b = document.createElement("b"); b.textContent = x[0];
+      var sp = document.createElement("span"); sp.textContent = x[1];
+      d.appendChild(b); d.appendChild(sp); k.appendChild(d);
+    });
     var rows = [
-      ["Wood on the ground", fmt(s.volume_m3, 0) + " m³"],
-      ["Average", fmt(s.density_m3_ha, 1) + " m³/ha"],
       ["Full stems", fmt(s.full.n, 0)],
       ["Fragments", fmt(s.frag.n, 0)],
       ["Area surveyed", fmt(s.imaged_ha, 1) + " ha"],
@@ -410,8 +425,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       var dd = document.createElement("dd"); dd.textContent = r[1];
       dl.appendChild(dt); dl.appendChild(dd);
     });
-    $("step-fly").textContent = "A drone photographs the site after the storm at about " + fmt(s.gsd_m * 100, 0) + " cm per pixel. The stitched orthomosaic is cut into squares of 2,500 pixels, " + side + " m on a side.";
-    $("len-lead").textContent = "Counted pieces by length, in one-metre bins. The dashed line marks the " + fmt(s.full_stem_min_length_m, 2) + " m minimum length for a full stem.";
+    $("step-fly").textContent = "A drone photographs the site after the storm at about " + fmt(s.gsd_m * 100, 0) + " cm per pixel. The photos are stitched into one map and cut into squares " + side + " m on a side.";
+    $("len-lead").textContent = "How many pieces fall in each one-metre length range. The dashed line is the " + fmt(s.full_stem_min_length_m, 2) + " m minimum length for a full stem.";
   }
 
   function buildMap() {
@@ -431,10 +446,11 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     byPos = {};
     cells.forEach(function (c, i) {
       var r = document.createElementNS(NS, "rect");
-      r.setAttribute("x", (c.col - minC) * CELL);
-      r.setAttribute("y", (c.row - minR) * CELL);
-      r.setAttribute("width", CELL);
-      r.setAttribute("height", CELL);
+      r.setAttribute("x", (c.col - minC) * CELL + 0.6);
+      r.setAttribute("y", (c.row - minR) * CELL + 0.6);
+      r.setAttribute("width", CELL - 1.2);
+      r.setAttribute("height", CELL - 1.2);
+      r.setAttribute("rx", 0.8);
       r.setAttribute("class", "cell");
       var t = document.createElementNS(NS, "title");
       r.appendChild(t);
@@ -469,24 +485,39 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     }
   }
 
+  function niceBreak(x) {
+    if (x <= 0) return 0;
+    if (x < 10) return Math.round(x * 10) / 10;
+    if (x < 100) return Math.round(x);
+    return Math.round(x / 5) * 5;
+  }
+
+  // Seven classes with about the same number of squares in each, so
+  // neighbouring squares read as clearly different steps.
   function paint() {
     var m = METRICS[metric];
     var vals = data.cells.map(m.value);
     var sorted = vals.slice().sort(function (a, b) { return a - b; });
-    var top = quantile(sorted, 0.98) || 1;
-    var stops = ramp();
+    var stops = ramp(), K = stops.length, breaks = [];
+    for (var k = 1; k < K; k++) breaks.push(niceBreak(quantile(sorted, k / K)));
+    function cls(v) { var c = 0; breaks.forEach(function (b) { if (v > b) c++; }); return c; }
+    function rgb(a) { return "rgb(" + a.join(",") + ")"; }
     rects.forEach(function (r, i) {
-      var t = Math.sqrt(Math.min(vals[i], top) / top);
-      r.setAttribute("fill", colourAt(stops, t));
+      r.setAttribute("fill", rgb(stops[cls(vals[i])]));
       r.firstChild.textContent = label(data.cells[i]) + ": " + fmt(vals[i], m.dp) + " " + m.unit;
     });
     $("map-title").textContent = m.title;
-    var grad = [];
-    for (var g = 0; g <= 10; g++) grad.push(colourAt(stops, g / 10) + " " + (g * 10) + "%");
-    $("legend-bar").style.background = "linear-gradient(to right," + grad.join(",") + ")";
-    $("legend-min").textContent = "0";
-    $("legend-max").textContent = fmt(top, m.dp) + " and above";
-    $("legend-caption").textContent = m.unit + ", square-root scale";
+    var lg = $("legend");
+    lg.innerHTML = "";
+    for (var j = 0; j < K; j++) {
+      var cell = document.createElement("div");
+      var sw = document.createElement("i");
+      sw.style.background = rgb(stops[j]);
+      var t = document.createElement("span");
+      t.textContent = j === 0 ? "0" : (j === K - 1 ? fmt(breaks[j - 1], m.dp > 0 && breaks[j - 1] < 10 ? 1 : 0) + "+" : fmt(breaks[j - 1], m.dp > 0 && breaks[j - 1] < 10 ? 1 : 0));
+      cell.appendChild(sw); cell.appendChild(t); lg.appendChild(cell);
+    }
+    $("legend-caption").textContent = m.unit + ". Each colour covers the same number of squares.";
     renderReadout();
   }
 
@@ -515,7 +546,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         "<span><b>" + fmt(s.pieces_per_ha, 1) + "</b> pieces/ha</span>";
       var hint = document.createElement("div");
       hint.className = "row";
-      hint.textContent = "Select a square to see its numbers.";
+      hint.textContent = "Tap or hover over a square to see its numbers.";
       el.appendChild(p); el.appendChild(row); el.appendChild(hint);
       return;
     }
@@ -534,8 +565,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     var b = document.createElement("div");
     b.className = "row";
     b.innerHTML =
-      "<span><b>" + fmt(c.n_full, 0) + "</b> full stems</span>" +
-      "<span><b>" + fmt(c.n_frag, 0) + "</b> fragments</span>";
+      "<span><b>" + fmt(c.n_full, 0) + "</b> full stem" + (c.n_full === 1 ? "" : "s") + "</span>" +
+      "<span><b>" + fmt(c.n_frag, 0) + "</b> fragment" + (c.n_frag === 1 ? "" : "s") + "</span>";
     el.appendChild(head); el.appendChild(a); el.appendChild(b);
   }
 
@@ -559,8 +590,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       host.appendChild(wrap);
     });
     $("comp-lead").textContent =
-      "Full stems are long and slender enough to be whole fallen trees. They are " +
-      fmt(pct(s.full.n, n), 0) + "% of the pieces but carry " + fmt(pct(s.full.v, v), 0) + "% of the volume.";
+      "Full stems are the long, slender pieces. They are " +
+      fmt(pct(s.full.n, n), 0) + "% of the pieces but hold " + fmt(pct(s.full.v, v), 0) + "% of the wood.";
   }
 
   function renderHist() {
@@ -606,7 +637,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         ["Pieces", fmt(c.n, 0)],
         ["Volume", fmt(c.v, 0) + " m³"],
         ["Typical length", fmt(c.median_length_m, 1) + " m"],
-        ["90th percentile length", fmt(c.p90_length_m, 1) + " m"],
+        ["1 in 10 longer than", fmt(c.p90_length_m, 1) + " m"],
         ["Longest", fmt(c.max_length_m, 1) + " m"],
         ["Typical volume", fmt(c.median_volume_m3, 2) + " m³"]
       ];
@@ -674,8 +705,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     }
     var top10 = yAt(0.10), half = xAt(0.5);
     $("conc-title").textContent = "The densest tenth of the site holds " + fmt(top10 * 100, 0) + "% of the wood";
-    $("conc-lead").textContent = "Half of all the downed volume lies on " + fmt(half * 100, 0) +
-      "% of the surveyed area. Squares are ranked from densest to sparsest; the dashed line is what an even spread would look like.";
+    $("conc-lead").textContent = "Half of the wood sits on just " + fmt(half * 100, 0) +
+      "% of the area. Squares are ranked from densest to sparsest; the dashed line shows a perfectly even spread.";
     var W = 520, H = 320, L = 42, R = 14, T = 12, B = 40;
     function X(x) { return L + x * (W - L - R); }
     function Y(y) { return T + (1 - y) * (H - T - B); }
@@ -714,9 +745,20 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     });
   });
 
-  var mq = window.matchMedia("(prefers-color-scheme: dark)");
-  var onScheme = function () { if (data) { paint(); renderHist(); } };
-  if (mq.addEventListener) mq.addEventListener("change", onScheme); else if (mq.addListener) mq.addListener(onScheme);
+  var btn = $("theme-toggle");
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    btn.textContent = t === "dark" ? "Light mode" : "Dark mode";
+    if (data) { paint(); renderHist(); renderConcentration(); }
+  }
+  var saved = "light";
+  try { saved = localStorage.getItem("theme") || "light"; } catch (e) {}
+  applyTheme(saved);
+  btn.addEventListener("click", function () {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    applyTheme(next);
+  });
 
   function fail(msg) {
     var n = $("map-notice");
