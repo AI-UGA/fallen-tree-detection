@@ -200,7 +200,7 @@ def zonal_tile(size_in=4.4):
 
 
 # ---------------------------------------------------------------- locator map
-def locator(w_in=5.0):
+def locator(w_in=2.85):
     import geopandas as gpd
     geo = POSTER / "geo_src"
     states = gpd.read_file(geo / "tiger" / "cb_2023_us_state_20m.shp")
@@ -214,12 +214,12 @@ def locator(w_in=5.0):
     fig = plt.figure(figsize=(w_in, h_in), dpi=DPI)
     ax = fig.add_axes([0.02, 0.02, 0.96, 0.96])
     cp_ga.plot(ax=ax, color="#C9DDB5", linewidth=0)
-    ga.boundary.plot(ax=ax, color=INK, linewidth=3)
+    ga.boundary.plot(ax=ax, color=INK, linewidth=2)
     cx, cy = cp_ga.dissolve().representative_point().iloc[0].coords[0]
     ax.text(cx, cy - (maxy - miny) * 0.08, "Coastal\nPlain", ha="center", va="center",
-            fontsize=30, fontweight=700, color=INK, linespacing=1.05)
+            fontsize=24, fontweight=700, color=INK, linespacing=1.05)
     ax.text(minx + (maxx - minx) * 0.30, maxy - (maxy - miny) * 0.16, "GEORGIA", ha="center",
-            va="center", fontsize=28, fontfamily="Oswald", fontweight=500, color=INK)
+            va="center", fontsize=24, fontfamily="Oswald", fontweight=500, color=INK)
     ax.set_xlim(minx, maxx)
     ax.set_ylim(miny, maxy)
     ax.set_aspect("equal")
@@ -346,7 +346,7 @@ def logos():
 
 # ---------------------------------------------------------------- QR
 def qr():
-    segno.make("https://github.com/AI-UGA/fallen-tree-detection", error="m").save(
+    segno.make("https://ai-uga.github.io/fallen-tree-detection/", error="m").save(
         str(FIG / "qr.svg"), scale=10, border=0, dark=BLACK)
 
 
