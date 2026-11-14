@@ -99,7 +99,7 @@ h1 { font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif); letter-spacing: -.0
 .scalebar i { display: block; height: 6px; border: 2px solid #1c2b24; border-top: 0; margin-top: 3px; }
 
 .panel { border: 1px solid var(--rule); border-radius: 4px; padding: 1.1rem 1.1rem 1.25rem; }
-.panel h3 { font: 600 1.125rem/1.25 var(--serif); margin: 0 0 .25rem; }
+.panel h2 { font: 600 1.125rem/1.25 var(--serif); margin: 0 0 .25rem; }
 .panel .sub { font-size: .8125rem; color: var(--muted); margin: 0 0 .9rem; }
 .legend { margin: 0 0 1rem; }
 .legend .ttl { font-size: .8125rem; font-weight: 600; margin-bottom: .4rem; }
@@ -146,7 +146,7 @@ h3 { font: 600 1.0625rem/1.3 var(--sans); margin: 0 0 .5rem; }
 .steps li::before { content: counter(step); display: block; font: 600 1.4rem/1 var(--serif); margin-bottom: .5rem; color: var(--accent); }
 .steps h3 { margin: 0 0 .3rem; font-size: 1rem; }
 .steps p { margin: 0; font-size: .875rem; color: var(--muted); }
-.note { margin: 2rem 0 0; padding: 1rem 1.25rem; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); max-width: 52em; font-size: .9375rem; }
+.note { margin: 2rem 0 0; padding-top: 1rem; border-top: 1px solid var(--rule); max-width: 52em; font-size: .9375rem; color: var(--muted); }
 
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
 .share { margin-bottom: 1.5rem; }
@@ -189,7 +189,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
 @media (max-width: 1100px) {
-  .mapgrid { grid-template-columns: 1fr; }
+  .mapgrid { grid-template-columns: minmax(0, 1fr); }
   .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) {
@@ -201,6 +201,10 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
   .wrap, .wrap-wide { padding: 0 1rem; }
   section { padding: 3rem 0; }
   #lmap { height: 420px; }
+  .seg { flex-wrap: nowrap; overflow-x: auto; border-radius: 12px; max-width: 100%; scrollbar-width: none; }
+  .seg button { white-space: nowrap; }
+  .ctl-opacity { display: none; }
+  .controls { gap: .6rem 1rem; }
   .steps { grid-template-columns: 1fr; }
   .vs .row { grid-template-columns: 5rem minmax(0, 1fr) 3rem; }
 }
@@ -238,20 +242,20 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
             <button type="button" data-layer="hot" aria-pressed="false">Hot spots (Gi*)</button>
           </div>
           <label class="ctl"><input type="checkbox" id="top10" checked> Densest 10% outline</label>
-          <label class="ctl" for="opacity">Opacity <input type="range" id="opacity" min="0.2" max="1" step="0.05" value="0.92"></label>
+          <label class="ctl ctl-opacity" for="opacity">Opacity <input type="range" id="opacity" min="0.2" max="1" step="0.05" value="0.92"></label>
           <button type="button" class="btn" id="reset">Reset view</button>
         </div>
-        <div id="lmap" tabindex="0" role="application" aria-label="Map of 300 quadrants. Use the arrow keys to move between quadrants and Enter to open details."><p class="notice" id="map-notice">Loading the map.</p></div>
+        <div id="lmap" tabindex="0" role="application" aria-label="Map of 300 quadrants. Arrow keys move between quadrants, Enter opens details, plus and minus zoom."><p class="notice" id="map-notice">Loading the map.</p></div>
         <p class="mapnote">Each square is one 127 m (1.6 ha) quadrant on an anonymized grid. No coordinates, no basemap: the site is private land.</p>
       </div>
-      <aside class="panel" aria-live="polite">
+      <aside class="panel">
         <div class="legend" id="legend"></div>
-        <h3 id="q-title">Pick a quadrant</h3>
+        <div aria-live="polite"><h2 id="q-title">Pick a quadrant</h2>
         <p class="sub" id="q-sub">Click a square on the map, or focus the map and use the arrow keys.</p>
-        <dl class="attrs" id="q-attrs"></dl>
+        <dl class="attrs" id="q-attrs"></dl></div>
         <div class="phist" id="q-hist"></div>
         <div class="totals">
-          <h3>Whole site</h3>
+          <h2>Whole site</h2>
           <dl class="attrs" id="site-totals"></dl>
         </div>
       </aside>
@@ -433,7 +437,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       return RAMPS.stem[Math.min(4, Math.floor(v / 20))];
     }
     var b = data.summary.breaks[L.key];
-    if (v === 0) return RAMPS[layer][0];
+    if (v === 0) return NOWOOD;
     for (var i = 1; i < b.length; i++) if (v <= b[i]) return RAMPS[layer][i];
     return RAMPS[layer][RAMPS[layer].length - 1];
   }
@@ -447,11 +451,11 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       items.push([NOWOOD, "No wood"]);
     } else {
       var b = data.summary.breaks[L.key];
-      items.push([RAMPS[layer][0], "No wood (0)"]);
+      items.push([NOWOOD, "No wood"]);
       for (var i = 1; i < b.length; i++) items.push([RAMPS[layer][i], (i === 1 ? "Above 0" : fmt(b[i - 1], 1)) + " to " + fmt(b[i], 1)]);
     }
     var lis = items.map(function (it) { return '<li><i style="background:' + it[0] + '"></i>' + it[1] + "</li>"; }).join("");
-    var top = $("top10").checked ? '<li><i style="background:transparent;border:2.5px solid #111"></i>Densest 10% of area</li>' : "";
+    var top = $("top10").checked ? '<li><i style="background:#2e7d4f;border:3px solid #f6c055"></i>Densest 10% of area</li>' : "";
     return '<div class="ttl">' + L.title + "</div><ul>" + lis + top + '</ul><p class="method">' + L.method + "</p>";
   }
 
@@ -564,13 +568,20 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     });
     top10Group = L.layerGroup(cells.filter(function (c) { return c.densest10; }).map(function (c) {
       return L.rectangle([[-c.row - 0.92, c.col + 0.08], [-c.row - 0.08, c.col + 0.92]],
-                         { weight: 2.5, color: "#111", fill: false, interactive: false });
+                         { weight: 3, color: "#f6c055", fill: false, interactive: false });
     })).addTo(map);
     var scale = new Scale().addTo(map);
     new North().addTo(map);
     map.on("zoomend resize", function () { scale.update(); });
     scale.update();
-    $("reset").addEventListener("click", function () { map.fitBounds(bounds, { padding: [10, 10] }); map.closePopup(); });
+    $("reset").addEventListener("click", function () {
+      map.fitBounds(bounds, { padding: [10, 10] }); map.closePopup();
+      if (state.sel) { rects[state.sel.id].setStyle({ weight: 0.6, color: "#ffffff" }); state.sel = null; }
+      $("q-title").textContent = "Pick a quadrant";
+      $("q-sub").textContent = "Click a square on the map, or focus the map and use the arrow keys.";
+      $("q-attrs").innerHTML = "";
+      restyle();
+    });
 
     // keyboard navigation between quadrants
     $("lmap").addEventListener("keydown", function (e) {
@@ -581,12 +592,20 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         for (var step = 0; step < 25; step++) {
           r += d[0]; k += d[1];
           if (r < 0 || k < 0 || r >= S.nrow || k >= S.ncol) break;
-          if (byRC[r + "," + k]) { select(byRC[r + "," + k], false); map.panInside(rects[byRC[r + "," + k].id].getBounds().getCenter()); return; }
+          if (byRC[r + "," + k]) {
+            var wasOpen = !!(state.sel && rects[state.sel.id].isPopupOpen());
+            map.closePopup();
+            select(byRC[r + "," + k], wasOpen);
+            map.panInside(rects[byRC[r + "," + k].id].getBounds().getCenter());
+            return;
+          }
         }
         if (!state.sel) select(c, false);
       } else if (e.key === "Enter" && state.sel) {
         e.preventDefault(); rects[state.sel.id].openPopup();
-      } else if (e.key === "Escape") { map.closePopup(); }
+      } else if (e.key === "Escape") { map.closePopup();
+      } else if (e.key === "+" || e.key === "=") { e.preventDefault(); map.zoomIn();
+      } else if (e.key === "-" || e.key === "_") { e.preventDefault(); map.zoomOut(); }
     });
     restyle();
   }

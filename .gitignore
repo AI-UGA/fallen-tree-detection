@@ -68,3 +68,12 @@ poster/geo_src/
 !docs/assets/data/
 !docs/assets/data/*.csv
 !docs/assets/img/*.webp
+
+# Poster build inputs and outputs: imagery crops, logos, fonts, references and
+# rendered files stay local. Only the poster's source code is committed.
+poster/assets/
+poster/reference/
+poster/preview_*.png
+
+# Local review screenshots
+screenshots/
