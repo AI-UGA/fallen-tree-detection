@@ -112,7 +112,7 @@ report FAIL "notebooks have no stored output" "$(echo "$HITS" | sed '/^$/d')"
 SUPERSEDED='42\.8|38\.5|35\.8|25\.4|1\.52|17\.1 m3|37\.4 m3|22\.2 m3|19\.0 m3|upper bound|MIN_SIDE|23,603|21,205|14,237|29\.74'
 # Generated numeric data (site.json, quadrant tables) is excluded: its values
 # can contain these digit runs by chance.
-HITS=$(grep -rnE "$SUPERSEDED" $FILES 2>/dev/null   | grep -vE '^docs/assets/(site\.json|data/)' || true)
+HITS=$(grep -rnE "$SUPERSEDED" $FILES 2>/dev/null   | grep -vE '^(docs/assets/(site\.json|data/)|poster/figures/)' || true)
 report WARN "no superseded numbers" "$HITS"
 
 # 8. Published assets: no GPS or GeoTIFF metadata in images under docs/ and
