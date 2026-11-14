@@ -80,7 +80,7 @@ for i, c in enumerate(cells):
         "volume_full_m3": round(c["v_full"], 1), "volume_frag_m3": round(c["v_frag"], 1),
         "vol_ha": round(float(vha[i]), 1),
         "pieces_ha": round(float(pha[i]), 1),
-        "stem_share": round(100 * c["v_full"] / v, 1) if v > 0 else None,
+        "stem_share": round(100 * c["v_full"] / v) if v > 0 else None,
         "gi_class": g["gi_class"],
         "gi_z": g["gi_z"],
         "gi_p": round(g["p_sim"], 3),
