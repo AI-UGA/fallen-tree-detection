@@ -13,6 +13,7 @@ reproduce these, the code is wrong, not the numbers.
 | Tiles | 76, of which 7 produced no detections |
 | Quadrants | 300, each 2,500 x 2,500 px |
 | CRS | EPSG:26917, UTM zone 17N |
+| Acquisition date | 26 April 2025 |
 
 Area always comes from the quadrant record, `per_tile/*.quads.csv`, grouped by
 `was_annotated`. Never hardcode 152.9 or 325.8. The quadrant record covers all
@@ -57,6 +58,8 @@ Exclusions, by category:
 | Insufficient elongation | 1 | 0.3 |
 | Tile boundary contact | 735 | 424.4 |
 | Total | 2,515 | 478.7 |
+
+Retained: 20,700 of 23,215 detections, 89.2 percent.
 
 Identities worth asserting: 14,879.3 - 478.7 = 14,400.6 exactly, and
 3,668 + 17,032 = 20,700.
@@ -130,3 +133,36 @@ Mask R-CNN: 7,000 iterations (metrics.json final logged iteration 6999), batch
 YOLOv8s-seg: run yolov8s_seg_run3_v4_1600, 200 epochs, imgsz 1600, SGD LR 0.01
 cosine, seed 0 deterministic, patience 50 not triggered, best epoch 151 by mask
 AP50 = 0.373, about 0.85 h.
+
+## Classification thresholds
+
+Source: `configs/thresholds.json`, the single source of truth (Table 6 of the
+manuscript). Lengths and widths in metres; widths are divided by the width
+bias of 1.19 before the rules are applied.
+
+| Rule | Value |
+|---|---|
+| Width floor | 0.15 m (three pixels) |
+| Length floor | 1.37 m |
+| Elongation floor | 3.0 |
+| Full stem: minimum length | 6.78 m |
+| Full stem: minimum elongation | 12.0 |
+| Full stem: width range | 0.25 to 1.5 m |
+
+A full stem is 6.78 m or longer and passes the width and elongation rules.
+
+## Concentration (quadrant basis)
+
+Method: wood volume per hectare in each of the 300 quadrants, from
+`docs/assets/site.json`. Quadrants are ranked densest first and cumulative
+share of area is plotted against cumulative share of volume, interpolating
+within quadrants. Script: `poster/make_figures.py`.
+
+| Quantity | Value |
+|---|---|
+| Share of wood on the densest 10 percent of area | 42.5 percent, reported as 43 percent |
+| Share of area holding half the wood | 13.3 percent, reported as 13 percent |
+
+Maps and spatial statistics use the 127 m (1.6 ha) quadrants. The manuscript
+also reports per-tile (6.45 ha) summaries; the per-tile ranges above
+(0 to 185.2 objects/ha, up to 224.7 m3/ha) are per tile, not per quadrant.

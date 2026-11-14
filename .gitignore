@@ -48,3 +48,23 @@ dist/
 !docs/assets/img/
 !docs/assets/img/*.png
 !docs/assets/img/*.jpg
+
+# Privacy: real UTM coordinates and the unpublished manuscript never enter git
+figures/*_coords*
+*_coords*
+manuscript/
+figure.zip
+site_images_raw/
+figures/
+gisday-website.zip
+
+# Local tooling and downloaded public boundary data used only to draw the locator
+.agents/
+.claude/
+skills-lock.json
+poster/geo_src/
+
+# Published, coordinate-free downloads and web images
+!docs/assets/data/
+!docs/assets/data/*.csv
+!docs/assets/img/*.webp

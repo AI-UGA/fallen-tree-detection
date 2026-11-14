@@ -10,8 +10,8 @@ released.
 - Filenames follow `figure<N>_<topic>`, written as both PNG and TIFF at
   600 dpi.
 - Column widths: 3.5 in single column, 7.2 in double column.
-- Model colours are fixed across every figure: YOLOv8s-seg `#1D9E75`,
-  Mask R-CNN `#7F77DD`.
+- Model colours are fixed across every figure: YOLOv8s-seg orange, Mask
+  R-CNN green, annotations black (as in Figure 6).
 - Class colours: full stem `#1D9E75`, fragment `#EF9F27`, excluded `#B4B2A9`.
 - Colour never carries meaning on its own. Every distinction is also encoded
   by position, label or marker.
@@ -27,7 +27,8 @@ released.
 | Detection examples | tiles plus predictions | no |
 | Box versus mask AP50 illustration | one tile crop plus annotation | no |
 | Inventory composition | measurement table | no |
-| Per-tile density | measurement table plus quadrant record | no |
+| Per-tile density (manuscript Figure 7) | measurement table plus quadrant record | no |
+| Per-quadrant density (website, poster) | `docs/assets/site.json` | yes |
 
 ## Regenerating
 
