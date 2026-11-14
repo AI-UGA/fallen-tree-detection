@@ -73,7 +73,7 @@
 
   /* background: photo leads, prose wraps */
   .bg-photos { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; margin-bottom: 8px; }
-  .bg-photos img { width: 100%; height: 400px; object-fit: cover; display: block; }
+  .bg-photos img { width: 100%; height: 360px; object-fit: cover; display: block; }
   .bg-cap { margin: 0 0 16px; }
   .bg .prose { text-wrap: pretty; }
   .lead-photo { width: 400px; }
@@ -89,10 +89,10 @@
   }
 
   /* study site: locator leads */
-  .site { display: grid; grid-template-columns: 456px 1fr; column-gap: 40px; align-items: start; }
-  .site > img { width: 456px; display: block; }
-  .site-foot { display: grid; grid-template-columns: 272px 1fr; column-gap: 24px; align-items: center; margin-top: 16px; }
-  .site-foot img { width: 272px; display: block; }
+  .site { display: grid; grid-template-columns: 496px 1fr; column-gap: 40px; align-items: start; }
+  .site > img { width: 496px; display: block; }
+  .site-foot { display: grid; grid-template-columns: 300px 1fr; column-gap: 24px; align-items: center; margin-top: 16px; }
+  .site-foot img { width: 300px; display: block; }
   .site-foot .cap { margin-top: 0; }
   dl.facts { display: flex; flex-direction: column; }
   dl.facts div { padding: 8px 0 16px; border-bottom: 2px solid var(--creamery); }
@@ -107,7 +107,7 @@
   thead th { font-weight: 600; font-size: var(--cap); color: var(--muted); border-bottom: 3px solid var(--ink); }
   tbody tr + tr td { border-top: 2px solid var(--creamery); }
   tbody tr.used td { font-weight: 700; }
-  .tag { font-size: 30px; font-weight: 600; color: var(--white); background: var(--black); padding: 2px 12px; margin-left: 16px; vertical-align: 4px; }
+  .tag { font-size: 30px; font-weight: 600; color: var(--white); background: var(--red); padding: 2px 12px; margin-left: 16px; vertical-align: 4px; }
 
   /* gallery */
   .gallery { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 16px; }
@@ -206,17 +206,17 @@
           <img src="assets/img/bg_windthrow_a.jpg" alt="Fallen stems lying under surviving canopy, seen from the drone">
           <img src="assets/img/bg_windthrow_b.jpg" alt="An open patch of blown-down trees beside standing forest">
         </div>
-        <p class="cap bg-cap"><b>Helene windthrow from the UAV:</b> stems down under surviving canopy (left) and in open blowdown (right).</p>
-        <p class="prose">Hurricane Helene (September 2024) downed large areas of Georgia forest. The fallen timber, called coarse woody debris, matters for three reasons: it feeds wildfire, it guides salvage, and it stores carbon. Foresters usually measure it along field transects on the ground. Transects give a fair site average, but they cannot show where the wood lies. A UAV map at centimeter resolution can, if every fallen piece is found, measured and mapped automatically.</p>
+        <p class="cap bg-cap"><b>What Helene left behind:</b> trunks lying under the trees that survived (left), and a stand flattened in the open (right).</p>
+        <p class="prose">In September 2024, Hurricane Helene knocked down large stretches of Georgia forest. That fallen timber, called coarse woody debris, is fuel for the next wildfire, it decides where salvage crews go, and it holds carbon. Foresters usually measure it by walking survey lines. That gives a good average for a site, but it can't show where the wood actually is. A drone map can, as long as a computer finds and measures every piece.</p>
       </div>
     </section>
 
     <section>
       <h2>Objectives</h2>
       <ol class="obj">
-        <li>Find and outline every fallen piece in drone images.</li>
-        <li>Measure each piece and split full stems from fragments.</li>
-        <li>Map wood volume on a grid land managers can use.</li>
+        <li>Find every piece of fallen wood in the drone images.</li>
+        <li>Measure each piece and sort trunks from fragments.</li>
+        <li>Turn it all into a map land managers can use.</li>
       </ol>
     </section>
 
@@ -234,9 +234,9 @@
       </div>
       <div class="site-foot">
         <img src="figures/locator.png" alt="Georgia outline with the Coastal Plain shaded">
-        <p class="cap"><b>76 tiles cover 478.7 ha</b> of imagery within a 655.7 ha bounding box, in Georgia's Coastal Plain (inset). Private land: no site point.</p>
+        <p class="cap"><b>76 tiles, 478.7 ha of imagery,</b> inside a 655.7 ha box in Georgia's Coastal Plain (inset). The land is private, so we don't mark the spot.</p>
       </div>
-      <p class="src">Boundaries: US Census Bureau, TIGER/Line cartographic boundary, 2023. Physiography: USGS, Fenneman and Johnson (1946). Both public domain.</p>
+      <p class="src">Inset data (public domain): US Census TIGER/Line boundaries, 2023; USGS physiography, Fenneman and Johnson (1946).</p>
     </section>
 
     <section>
@@ -248,7 +248,7 @@
           <tr><td>Mask R-CNN</td><td>40.8</td><td>27.1</td></tr>
         </tbody>
       </table>
-      <p class="cap"><b>YOLOv8s-seg ran the inventory for its higher box AP50 (43.0 vs 40.8),</b> keeping detections above 0.225 confidence, where validation F1 peaked (0.481). AP50: precision at 50% overlap.</p>
+      <p class="cap"><b>We used YOLOv8s-seg because it placed pieces more accurately</b> (box AP50 43.0 vs 40.8). Detections are kept above 0.225 confidence, the validation F1 peak (0.481).</p>
     </section>
   </div>
 
@@ -259,28 +259,28 @@
       <div class="steps">
         <div class="step">
           <figure><img src="assets/img/step1_image.jpg" alt=""><span class="n">1</span></figure>
-          <div><h3>Orthomosaic raster</h3><p>0.0508 m pixels (GSD), UTM zone 17N.</p></div>
+          <div><h3>Orthomosaic raster</h3><p>The stitched drone map: 0.0508 m pixels, in UTM zone 17N.</p></div>
         </div>
         <div class="step">
           <figure><img src="assets/img/step2_detect.jpg" alt=""><span class="n">2</span></figure>
-          <div><h3>Instance masks</h3><p>YOLOv8s-seg outlines each fallen piece.</p></div>
+          <div><h3>Instance masks</h3><p>The model draws an outline around every fallen piece.</p></div>
         </div>
         <div class="step">
           <figure><img src="assets/img/step4_classify.jpg" alt=""><span class="n">3</span></figure>
-          <div><h3>Vector features</h3><p>Each piece gets length, width, volume and class: <i class="sw" style="background:var(--full)"></i>full stem or <i class="sw" style="background:var(--frag)"></i>fragment.</p></div>
+          <div><h3>Vector features</h3><p>Each outline becomes a shape with its own length, width, volume and class: <i class="sw" style="background:var(--full)"></i>full stem or <i class="sw" style="background:var(--frag)"></i>fragment.</p></div>
         </div>
         <div class="step">
           <figure><img class="keep-bottom" src="assets/img/step4_quadrant.jpg" alt="One 127 m quadrant of the orthomosaic"><span class="n">4</span></figure>
-          <div><h3>Zonal statistics</h3><p>Pieces and volume are summed in each 127 m (1.6 ha) quadrant like this one.</p></div>
+          <div><h3>Zonal statistics</h3><p>We add up the pieces and volume inside each 127 m (1.6 ha) square, like this one.</p></div>
         </div>
       </div>
-      <p class="cap"><b>Every piece becomes a measured, mapped feature.</b> Each piece is georeferenced by its centroid, and lengths are measured in projected meters. Full stems are 6.78 m or longer, and pass the width and elongation rules. Set aside (2,515): 735 at tile edges, 1,084 too narrow, 695 too short, 1 not elongated.</p>
+      <p class="cap"><b>Every piece ends up on the map with its own measurements.</b> Each one is placed by its center, and lengths are in real meters. A full stem is 6.78 m or longer and passes the width and elongation rules. We set aside 2,515 detections: 735 cut off at tile edges, 1,084 too narrow, 695 too short and 1 not elongated.</p>
     </section>
 
     <section class="hero">
       <h2>Where the Wood Lies</h2>
       <img src="figures/density_map.png" alt="Map of wood volume per hectare by 127 m quadrant">
-      <p class="cap"><b>Wood clusters in a few quadrants.</b> The densest 10% of the area (outlined) holds 43% of the wood, and half of all wood sits on 13% of the area. Each square is one 127 m quadrant (1.6 ha) on an anonymized grid.</p>
+      <p class="cap"><b>Most of the wood is packed into a few squares.</b> The densest 10% of the site (outlined) holds 43% of the wood, and half of it sits on just 13% of the area. Each square is 127 m (1.6 ha) on an anonymized grid.</p>
     </section>
   </div>
 
@@ -309,7 +309,7 @@
         <figure class="f"><img src="assets/img/gallery_03.jpg" alt="Full stem with traced centerline"><figcaption>15.0 m</figcaption></figure>
         <figure class="g"><img src="assets/img/gallery_11.jpg" alt="Fragment with traced centerline"><figcaption>3.5 m</figcaption></figure>
         <figure class="g"><img src="assets/img/gallery_12.jpg" alt="Fragment with traced centerline"><figcaption>4.5 m</figcaption></figure>
-        <p class="cap"><b>Full stems run long; fragments are short broken pieces.</b></p>
+        <p class="cap"><b>Whole trunks run long. Fragments are short, broken pieces.</b></p>
       </div>
     </section>
 
@@ -329,7 +329,7 @@
             <span><i style="background:#6BAED6"></i>Cold spot, 95%</span>
             <span><i style="background:#2171B5"></i>Cold spot, 99%</span>
           </div>
-          <p class="pending"><b>Yes. Wood volume is strongly clustered</b> (Moran&rsquo;s I 0.378, p = 0.001). Hot spots cover 14% of the area and hold 38% of the wood.</p>
+          <p class="pending"><b>Yes. Heavy squares sit next to each other.</b> Moran&rsquo;s I is 0.378 (p = 0.001). The hot spots cover 14% of the area but hold 38% of the wood.</p>
           <p class="src method">Getis-Ord Gi* (local hot and cold spot test), 999 permutations; neighbors share an edge or corner.</p>
         </div>
       </div>
@@ -337,7 +337,7 @@
 
     <section>
       <h2>Conclusions</h2>
-      <p class="prose">One UAV survey and instance segmentation produced a <b>piece-by-piece inventory of 478.7 ha</b>. Full stems are only a quarter of the pieces but hold most of the volume. Wood is spatially clustered in a few hot spots, so a quadrant map can show crews where to start salvage and fuel work. These volumes are image-based estimates and are not yet field-validated, and small pieces are under-detected. Next steps are LiDAR canopy height and a second site.</p>
+      <p class="prose">One drone survey gave us a <b>piece-by-piece count of the fallen wood across 478.7 ha</b>. Full stems are only a quarter of the pieces but hold most of the volume, and the wood is bunched into a few hot spots. That hands land managers a short list of places to check first for fire risk, salvage and carbon. The trained model can also be run again soon after the next storm. Next, we want to <b>raise its accuracy</b> and make it work on <b>other sites, sensors and kinds of imagery</b>.</p>
     </section>
 
     <section class="refs">
