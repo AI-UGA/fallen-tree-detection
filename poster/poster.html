@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fallen Wood After Helene</title>
+<link rel="stylesheet" href="assets/fonts/fonts_local.css">
+<style>
+  /* 48 x 36 in at 96 px/in. Margin 0.75 in = 72 px. Spacing on an 8 px rhythm. */
+  @page { size: 48in 36in; margin: 0; }
+  :root {
+    --red: #BA0C2F; --black: #000; --white: #fff;
+    --stegeman: #9EA2A2; --creamery: #D6D2C4;
+    --ink: #1a1a1a; --muted: #3d3d3d;
+    --full: #1d9e75; --frag: #ef9f27;
+    --m: 72px; --gutter: 96px; --sgap: 48px;
+    --body: 40px;     /* 30 pt */
+    --cap: 34px;      /* 25.5 pt */
+    --h2: 72px;       /* 54 pt */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 4608px; height: 3456px; background: var(--white); }
+  body {
+    font-family: 'Merriweather Sans', sans-serif; color: var(--ink);
+    font-size: var(--body); line-height: 1.4;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-variant-ligatures: no-common-ligatures;
+  }
+  .page { position: absolute; inset: var(--m); display: flex; flex-direction: column; }
+
+  /* ---------------- header: two equal side blocks, title optically centered */
+  header {
+    display: grid; grid-template-columns: 1fr 1880px 1fr; column-gap: 64px;
+    align-items: center; padding-bottom: 40px; border-bottom: 12px solid var(--red);
+  }
+  .side { display: flex; align-items: center; justify-content: space-between; gap: 56px; }
+  .side img { display: block; }
+  .side .uga { height: 304px; }
+  .side .ai { height: 304px; }
+  .side .warnell { height: 216px; }
+  .qr { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .qr img { width: 256px; height: 256px; }
+  .qr span { font-size: 30px; font-weight: 600; line-height: 1.25; text-align: center; max-width: 280px; }
+  .titleblock { text-align: center; }
+  h1 {
+    font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 144px; line-height: 1.04;
+    letter-spacing: -0.01em; color: var(--black); text-wrap: balance;
+  }
+  .subtitle {
+    font-family: 'Merriweather', serif; font-style: italic; font-size: 60px; line-height: 1.25;
+    color: var(--red); margin-top: 16px;
+  }
+  .authors { font-size: 44px; font-weight: 600; margin-top: 24px; line-height: 1.3; }
+  .authors sup, .affil sup { font-size: 0.62em; line-height: 0; }
+  .affil { font-size: 32px; color: var(--muted); margin-top: 8px; line-height: 1.35; }
+
+  /* ---------------- body grid */
+  main {
+    flex: 1; display: grid; grid-template-columns: 1176px 1712px 1384px; column-gap: var(--gutter);
+    padding-top: 56px; min-height: 0;
+  }
+  .col { display: flex; flex-direction: column; justify-content: space-between; gap: var(--sgap); min-height: 0; }
+  section { display: flex; flex-direction: column; }
+  h2 {
+    font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 64px; line-height: 1;
+    color: var(--white); background: var(--red); padding: 6px 24px 10px; margin-bottom: 16px;
+  }
+  h3 { font-weight: 700; font-size: 42px; line-height: 1.25; margin-bottom: 16px; }
+  b, strong { font-weight: 700; }
+  .cap { font-size: var(--cap); line-height: 1.35; color: var(--muted); margin-top: 16px; }
+  .cap b { color: var(--ink); }
+  .src.method { font-size: 30px; }
+  .src { font-size: 26px; line-height: 1.35; color: var(--muted); margin-top: 8px; }
+  .sw { display: inline-block; width: 28px; height: 28px; vertical-align: -3px; margin-right: 8px; }
+
+  /* background: photo leads, prose wraps */
+  .bg { display: grid; grid-template-columns: 400px 1fr; column-gap: 32px; align-items: start; }
+  .bg .prose { text-wrap: pretty; }
+  .lead-photo { width: 400px; }
+  .lead-photo img { width: 400px; height: 400px; display: block; object-fit: cover; }
+  .lead-photo figcaption { font-size: 30px; line-height: 1.3; margin-top: 8px; color: var(--muted); }
+  .prose { line-height: 1.4; }
+
+  ol.obj { list-style: none; counter-reset: o; display: flex; flex-direction: column; gap: 16px; }
+  ol.obj li { counter-increment: o; padding-left: 72px; position: relative; }
+  ol.obj li::before {
+    content: counter(o); position: absolute; left: 0; top: -8px;
+    font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 64px; line-height: 1; color: var(--red);
+  }
+
+  /* study site: locator leads */
+  .site { display: grid; grid-template-columns: 456px 1fr; column-gap: 40px; align-items: start; }
+  .site > img { width: 456px; display: block; }
+  .site-foot { display: grid; grid-template-columns: 176px 1fr; column-gap: 24px; align-items: center; margin-top: 16px; }
+  .site-foot img { width: 176px; display: block; }
+  .site-foot .cap { margin-top: 0; }
+  dl.facts { display: flex; flex-direction: column; }
+  dl.facts div { padding: 8px 0 16px; border-bottom: 2px solid var(--creamery); }
+  dl.facts div:first-child { padding-top: 0; }
+  dl.facts dt { font-size: var(--cap); color: var(--muted); line-height: 1.3; }
+  dl.facts dd { font-size: 40px; font-weight: 700; line-height: 1.3; }
+
+  /* model table */
+  table { width: 100%; border-collapse: collapse; font-size: 40px; }
+  th, td { padding: 16px 8px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; padding-left: 0; }
+  thead th { font-weight: 600; font-size: var(--cap); color: var(--muted); border-bottom: 3px solid var(--ink); }
+  tbody tr + tr td { border-top: 2px solid var(--creamery); }
+  tbody tr.used td { font-weight: 700; }
+  .tag { font-size: 30px; font-weight: 600; color: var(--white); background: var(--black); padding: 2px 12px; margin-left: 16px; vertical-align: 4px; }
+
+  /* gallery */
+  .gallery { display: grid; grid-template-columns: repeat(4, 224px) 1fr; column-gap: 16px; align-items: center; }
+  .gallery .cap { margin: 0 0 0 16px; }
+  .gallery figure { border: 10px solid; position: relative; }
+  .gallery figure.f { border-color: var(--full); }
+  .gallery figure.g { border-color: var(--frag); }
+  .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .gallery figcaption {
+    position: absolute; left: 0; top: 0; padding: 0 12px 4px; font-family: 'Oswald', sans-serif;
+    font-weight: 500; font-size: 44px; line-height: 1.1; color: var(--white);
+  }
+  .gallery figure.f figcaption { background: var(--full); }
+  .gallery figure.g figcaption { background: var(--frag); color: var(--black); }
+
+  /* methods: geospatial workflow */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 16px; }
+  .step figure { position: relative; }
+  .step img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .step .n {
+    position: absolute; left: 0; top: 0; width: 80px; height: 80px; background: var(--red); color: var(--white);
+    font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 56px; display: grid; place-items: center;
+  }
+  .step h3 { margin: 16px 0 0; font-size: 44px; }
+  .step p { font-size: 38px; line-height: 1.3; }
+
+  /* hero map */
+  .hero { flex: 1; min-height: 0; }
+  .hero img { flex: 1; min-height: 0; width: 100%; object-fit: contain; object-position: center top; display: block; }
+
+  /* KPIs */
+  .bignums { display: grid; grid-template-columns: auto auto auto; justify-content: space-between; column-gap: 32px; }
+  .bignum .v {
+    font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 128px; line-height: 1; color: var(--red);
+    letter-spacing: -0.01em; white-space: nowrap;
+  }
+  .bignum .v small { font-size: 0.56em; font-weight: 300; color: var(--black); letter-spacing: 0; margin-left: 8px; }
+  .bignum .l { font-size: 38px; line-height: 1.3; margin-top: 8px; }
+
+  /* composition bars */
+  .bars { display: grid; grid-template-columns: 168px 1fr; row-gap: 16px; column-gap: 24px; align-items: center; margin-top: 32px; }
+  .bars .lab { font-size: 38px; font-weight: 600; }
+  .bar { display: flex; height: 72px; }
+  .bar span { display: flex; align-items: center; padding-left: 16px; font-size: 40px; font-weight: 700; }
+  .bar .f { background: var(--full); color: var(--white); }
+  .bar .g { background: var(--frag); color: var(--black); }
+  .legend { display: flex; gap: 40px; margin-top: 16px; font-size: var(--cap); flex-wrap: wrap; }
+  .legend span { white-space: nowrap; }
+
+  /* hotspot */
+  .hot { display: grid; grid-template-columns: 1000px 1fr; column-gap: 32px; align-items: start; }
+  .hot img { width: 1000px; display: block; }
+  .gikey { display: flex; flex-direction: column; gap: 4px; font-size: 34px; line-height: 1.2; }
+  .gikey span { display: flex; align-items: center; }
+  .gikey i { width: 36px; height: 36px; margin-right: 16px; flex: none; outline: 2px solid var(--stegeman); outline-offset: -2px; }
+  .gikey .gap { height: 8px; }
+  .pending { margin-top: 16px; padding: 16px 0 0; border-top: 3px solid var(--creamery); font-size: var(--cap); line-height: 1.35; color: var(--muted); }
+  .pending b { color: var(--ink); }
+
+  main > .col:nth-child(1) { gap: 24px; }
+  main > .col:nth-child(3) { gap: 32px; }
+  .refs { font-size: 30px; line-height: 1.4; }
+  .refs p + p { margin-top: 8px; }
+  .refs .todo { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="side">
+    <img class="uga" src="assets/logos/uga.png" alt="University of Georgia">
+    <img class="ai" src="assets/logos/ai_at_uga.png" alt="AI@UGA">
+  </div>
+  <div class="titleblock">
+    <h1>Fallen Wood After Hurricane Helene, Measured from the Air</h1>
+    <div class="subtitle">A UAV inventory of coarse woody debris</div>
+    <div class="authors">Dang Hoang<sup>1</sup>, Rishab Subramaniyan<sup>1</sup>, Owen Norman<sup>2</sup>, Joey Hattan<sup>1</sup>, Roger C. Lowe III<sup>3</sup></div>
+    <div class="affil"><sup>1</sup>AI@UGA, University of Georgia &nbsp; <sup>2</sup>Brown University &nbsp; <sup>3</sup>Warnell School of Forestry and Natural Resources, University of Georgia</div>
+  </div>
+  <div class="side">
+    <img class="warnell" src="assets/logos/warnell.png" alt="Warnell School of Forestry and Natural Resources, University of Georgia">
+    <div class="qr"><img src="figures/qr.svg" alt="QR code to the project repository"><span>Code, data notes and live map</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= column 1 ================= -->
+  <div class="col">
+    <section>
+      <h2>Background</h2>
+      <div class="bg">
+        <figure class="lead-photo">
+          <img src="assets/img/site_tile.jpg" alt="Orthomosaic tile with downed stems beside standing forest">
+          <figcaption><b>Downed stems, seen from the UAV.</b></figcaption>
+        </figure>
+        <p class="prose">Hurricane Helene (September 2024) downed large areas of Georgia forest. The fallen timber, called coarse woody debris, matters for three reasons: it feeds wildfire, it guides salvage, and it stores carbon. Foresters usually measure it along field transects on the ground. Transects give a fair site average, but they cannot show where the wood lies. A UAV map at centimeter resolution can, if every fallen piece is found, measured and mapped automatically.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Objectives</h2>
+      <ol class="obj">
+        <li>Find and outline every fallen piece in drone images.</li>
+        <li>Measure each piece and split full stems from fragments.</li>
+        <li>Map wood volume on a grid land managers can use.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Study Site and Data</h2>
+      <div class="site">
+        <img src="assets/img/site_extent.png" alt="Layout of the 76 orthomosaic tiles">
+        <dl class="facts">
+          <div><dt>Area imaged</dt><dd>478.7 ha, 76 tiles</dd></div>
+          <div><dt>Pixel size</dt><dd>0.0508 m</dd></div>
+          <div><dt>Map grid</dt><dd>300 quadrants of 127 m</dd></div>
+          <div><dt>Hand labels</dt><dd>15,809 outlines, 209 images</dd></div>
+          <div><dt>Train / val / test</dt><dd>10,342 / 3,676 / 1,791</dd></div>
+        </dl>
+      </div>
+      <div class="site-foot">
+        <img src="figures/locator.png" alt="Georgia outline with the Coastal Plain shaded">
+        <p class="cap"><b>76 tiles cover 478.7 ha</b> of imagery within a 655.7 ha bounding box, in Georgia's Coastal Plain (inset). Private land: no site point.</p>
+      </div>
+      <p class="src">Boundaries: US Census Bureau, TIGER/Line cartographic boundary, 2023. Physiography: USGS, Fenneman and Johnson (1946). Both public domain.</p>
+    </section>
+
+    <section>
+      <h2>Detection Model</h2>
+      <table>
+        <thead><tr><th>Model</th><th>Box AP50</th><th>Mask AP50</th></tr></thead>
+        <tbody>
+          <tr class="used"><td>YOLOv8s-seg<span class="tag">used</span></td><td>43.0</td><td>24.9</td></tr>
+          <tr><td>Mask R-CNN</td><td>40.8</td><td>27.1</td></tr>
+        </tbody>
+      </table>
+      <p class="cap"><b>YOLOv8s-seg ran the inventory for its higher box AP50 (43.0 vs 40.8),</b> keeping detections above 0.225 confidence, where validation F1 peaked (0.481). AP50: precision at 50% overlap.</p>
+    </section>
+  </div>
+
+  <!-- ================= column 2 ================= -->
+  <div class="col">
+    <section>
+      <h2>Methods: A Geospatial Workflow</h2>
+      <div class="steps">
+        <div class="step">
+          <figure><img src="assets/img/step1_image.jpg" alt=""><span class="n">1</span></figure>
+          <h3>Orthomosaic raster</h3>
+          <p>0.0508 m pixels (GSD), UTM projection</p>
+        </div>
+        <div class="step">
+          <figure><img src="assets/img/step2_detect.jpg" alt=""><span class="n">2</span></figure>
+          <h3>Instance masks</h3>
+          <p>YOLOv8s-seg outlines each piece</p>
+        </div>
+        <div class="step">
+          <figure><img src="assets/img/step4_classify.jpg" alt=""><span class="n">3</span></figure>
+          <h3>Vector features</h3>
+          <p>Length, width, volume and class</p>
+        </div>
+        <div class="step">
+          <figure><img src="assets/img/step4_zonal.png" alt=""><span class="n">4</span></figure>
+          <h3>Zonal statistics</h3>
+          <p>Summed per 127 m (1.6 ha) quadrant</p>
+        </div>
+      </div>
+      <p class="cap"><b>Every piece becomes a measured, mapped feature.</b> Each piece is georeferenced by its centroid, and lengths are measured in projected meters. Full stems are 6.78 m or longer, and pass the width and elongation rules. Set aside (2,515): 735 at tile edges, 1,084 too narrow, 695 too short, 1 not elongated.</p>
+    </section>
+
+    <section class="hero">
+      <h2>Where the Wood Lies</h2>
+      <img src="figures/density_map.png" alt="Map of wood volume per hectare by 127 m quadrant">
+      <p class="cap"><b>Wood clusters in a few quadrants.</b> The densest 10% of the area (outlined) holds 43% of the wood, and half of all wood sits on 13% of the area. Each square is one 127 m quadrant (1.6 ha) on an anonymized grid.</p>
+    </section>
+  </div>
+
+  <!-- ================= column 3 ================= -->
+  <div class="col">
+    <section>
+      <h2>Results: Site-Wide Inventory</h2>
+      <div class="bignums">
+        <div class="bignum"><div class="v">20,700</div><div class="l">pieces of fallen wood</div></div>
+        <div class="bignum"><div class="v">14,401<small>m³</small></div><div class="l">of wood in total</div></div>
+        <div class="bignum"><div class="v">30.1<small>m³/ha</small></div><div class="l">average, 43.2 pieces/ha</div></div>
+      </div>
+      <div class="bars">
+        <div class="lab">Pieces</div>
+        <div class="bar"><span class="f" style="width:24.8%">24.8%</span><span class="g" style="width:75.2%">75.2%</span></div>
+        <div class="lab">Volume</div>
+        <div class="bar"><span class="f" style="width:57.4%">57.4%</span><span class="g" style="width:42.6%">42.6%</span></div>
+      </div>
+      <p class="cap"><b>Full stems are a quarter of the pieces but most of the wood.</b></p>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--full)"></i><b>Full stems</b> 5,138, median 9.1 m</span>
+        <span><i class="sw" style="background:var(--frag)"></i><b>Fragments</b> 15,562, median 4.1 m</span>
+      </div>
+      <div class="gallery" style="margin-top:32px">
+        <figure class="f"><img src="assets/img/gallery_01.jpg" alt="Full stem with traced centerline"><figcaption>9.5 m</figcaption></figure>
+        <figure class="f"><img src="assets/img/gallery_03.jpg" alt="Full stem with traced centerline"><figcaption>15.0 m</figcaption></figure>
+        <figure class="g"><img src="assets/img/gallery_11.jpg" alt="Fragment with traced centerline"><figcaption>3.5 m</figcaption></figure>
+        <figure class="g"><img src="assets/img/gallery_12.jpg" alt="Fragment with traced centerline"><figcaption>4.5 m</figcaption></figure>
+        <p class="cap"><b>Full stems run long; fragments are short broken pieces.</b></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Is the Clustering Real?</h2>
+      <div class="hot">
+        <img src="figures/hotspot_map.png" alt="Getis-Ord Gi* hot spot map by 127 m quadrant">
+        <div>
+          <div class="gikey">
+            <span><i style="background:#BA0C2F"></i>Hot spot, 99%</span>
+            <span><i style="background:#E06A80"></i>Hot spot, 95%</span>
+            <span><i style="background:#F4B8C3"></i>Hot spot, 90%</span>
+            <span class="gap"></span>
+            <span><i style="background:#EEECE6"></i>Not significant</span>
+            <span class="gap"></span>
+            <span><i style="background:#C6DBEF"></i>Cold spot, 90%</span>
+            <span><i style="background:#6BAED6"></i>Cold spot, 95%</span>
+            <span><i style="background:#2171B5"></i>Cold spot, 99%</span>
+          </div>
+          <p class="pending"><b>Yes. Wood volume is strongly clustered</b> (Moran&rsquo;s I 0.378, p = 0.001). Hot spots cover 14% of the area and hold 38% of the wood.</p>
+          <p class="src method">Getis-Ord Gi* (local hot and cold spot test), 999 permutations; neighbors share an edge or corner.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Conclusions</h2>
+      <p class="prose">One UAV survey and instance segmentation produced a <b>piece-by-piece inventory of 478.7 ha</b>. Full stems are only a quarter of the pieces but hold most of the volume. Wood is spatially clustered in a few hot spots, so a quadrant map can show crews where to start salvage and fuel work. These volumes are image-based estimates and are not yet field-validated, and small pieces are under-detected. Next steps are LiDAR canopy height and a second site.</p>
+    </section>
+
+    <section class="refs">
+      <h2>References</h2>
+      <p>He, K., Gkioxari, G., Doll&aacute;r, P., Girshick, R. (2017). Mask R-CNN. <i>Proc. IEEE ICCV</i>, 2961&ndash;2969.</p>
+      <p>Jocher, G., Chaurasia, A., Qiu, J. (2023). Ultralytics YOLOv8. github.com/ultralytics/ultralytics.</p>
+    </section>
+  </div>
+</main>
+</div>
+</body>
+</html>
