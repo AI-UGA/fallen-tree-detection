@@ -34,3 +34,15 @@ released.
 
 Call `apply_style()` once, then `save(fig, figure_name(n, topic))`. Do not set
 rcParams per figure; that is how two figures ended up with different fonts.
+
+## Web images
+
+`scripts/build_web_figures.py` writes the images under `docs/assets/img/`
+from the coordinate-free v3 figures, as WebP with no metadata:
+`fig_site.webp` (Figure 1, panel a only; the orthomosaic panel is never
+published), `fig_sizes.webp` (Figure 4), `fig_volume.webp` (Figure 8),
+`fig_gallery.webp` (Figure 5) and `fig_density.png`, which is drawn per
+127 m (1.6 ha) quadrant from `docs/assets/site.json`. The manuscript's
+Figure 7 shows the same data per tile (6.45 ha). Figure 2 is not used on the
+website or poster, because its annotation and segmentation colours clash with
+the full stem (green) and fragment (orange) colours.

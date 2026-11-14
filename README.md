@@ -73,12 +73,13 @@ volume.
 ### 4. Classify
 
 Rules in [`configs/thresholds.json`](configs/thresholds.json) sort each
-piece. Long, slender pieces (at least 6.78 m long, elongation at least 12)
-are **full stems**; everything else that passes the quality floors is a
+piece. A **full stem** is 6.78 m or longer, and passes the width and
+elongation rules; everything else that passes the quality floors is a
 **fragment**. Pieces cut by a tile edge, or too small to measure reliably,
 are set aside and reported separately.
 
-<p align="center"><img src="docs/assets/img/fig_workflow.png" alt="Workflow diagram" width="90%"><br><sub>The full workflow.</sub></p>
+Maps use 127 m (1.6 ha) quadrants; the manuscript also reports per-tile
+(6.45 ha) summaries.
 
 ## Results
 
@@ -93,12 +94,12 @@ wood.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/assets/img/fig_sizes.png" alt="Size distributions"><br><sub>Size distributions.</sub></td>
-<td width="50%"><img src="docs/assets/img/fig_volume.png" alt="Volume by class"><br><sub>Inventory volume.</sub></td>
+<td width="50%"><img src="docs/assets/img/fig_sizes.webp" alt="Length histogram, width histogram and length against width scatter by class"><br><sub><b>Most pieces are shorter than the 6.78 m stem cut.</b> Length histogram with the stem threshold marked, width histogram with the debris floor marked, and a length against width scatter coloured by class. Log axes.</sub></td>
+<td width="50%"><img src="docs/assets/img/fig_volume.webp" alt="Volume histogram by class"><br><sub><b>Full stems carry the large volumes.</b> Volume distribution histogram, full stems and fragments as separate series. Log x axis given the skew.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/assets/img/fig_density.png" alt="Density across the site"><br><sub>Volume density across the site, on an anonymized grid.</sub></td>
-<td><img src="docs/assets/img/fig_gallery.jpg" alt="Detection examples"><br><sub>Detection examples.</sub></td>
+<td><img src="docs/assets/img/fig_density.png" alt="Pieces and wood volume per hectare by quadrant"><br><sub><b>Wood clusters in a few quadrants.</b> Pieces per hectare and wood volume per hectare in each 127 m (1.6 ha) quadrant, in quantile classes, on an anonymized grid. The manuscript's Figure 7 shows the same data per tile.</sub></td>
+<td><img src="docs/assets/img/fig_gallery.webp" alt="Example pieces with outlines, centerlines and measured lengths"><br><sub><b>Each piece is measured along its centerline.</b> Example gallery, four masks per class, each with its extracted centerline overlaid and its measured length labelled, including one borderline case per class.</sub></td>
 </tr>
 </table>
 
