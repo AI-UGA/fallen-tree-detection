@@ -201,8 +201,9 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
   .wrap, .wrap-wide { padding: 0 1rem; }
   section { padding: 3rem 0; }
   #lmap { height: 420px; }
-  .seg { flex-wrap: nowrap; overflow-x: auto; border-radius: 12px; max-width: 100%; scrollbar-width: none; }
+  .seg { border-radius: 12px; }
   .seg button { white-space: nowrap; }
+  .top nav a { padding: .65rem 0; }
   .ctl-opacity { display: none; }
   .controls { gap: .6rem 1rem; }
   .steps { grid-template-columns: 1fr; }
@@ -551,10 +552,15 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     $("map-notice").remove();
     var S = data.summary;
     var bounds = L.latLngBounds([[-S.nrow, 0], [0, S.ncol]]);
-    map = L.map("lmap", { crs: L.CRS.Simple, keyboard: false, attributionControl: false, zoomSnap: 0.25,
+    map = L.map("lmap", { crs: L.CRS.Simple, keyboard: false, attributionControl: false, zoomSnap: 0.25, scrollWheelZoom: false,
                           minZoom: 2, maxZoom: 7, maxBounds: bounds.pad(0.25), maxBoundsViscosity: 0.8 });
     map.fitBounds(bounds, { padding: [10, 10] });
     var homeZoom = map.getZoom();
+    // wheel zoom only once the reader engages with the map, so page scrolling is never hijacked
+    function wheelOn() { map.scrollWheelZoom.enable(); }
+    map.on("click focus", wheelOn);
+    $("lmap").addEventListener("focus", wheelOn);
+    $("lmap").addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
     map.setMinZoom(homeZoom - 0.5);
     cells.forEach(function (c) {
       var r = L.rectangle([[-c.row - 1, c.col], [-c.row, c.col + 1]], {
@@ -588,7 +594,12 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       var d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
       if (d) {
         e.preventDefault();
-        var c = state.sel || byRC[Object.keys(byRC).sort()[0]], r = c.row, k = c.col;
+        if (!state.sel) {
+          var first = cells.slice().sort(function (a, b) { return a.row - b.row || a.col - b.col; })[0];
+          select(first, false);
+          return;
+        }
+        var c = state.sel, r = c.row, k = c.col;
         for (var step = 0; step < 25; step++) {
           r += d[0]; k += d[1];
           if (r < 0 || k < 0 || r >= S.nrow || k >= S.ncol) break;
@@ -600,7 +611,6 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
             return;
           }
         }
-        if (!state.sel) select(c, false);
       } else if (e.key === "Enter" && state.sel) {
         e.preventDefault(); rects[state.sel.id].openPopup();
       } else if (e.key === "Escape") { map.closePopup();
