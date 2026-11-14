@@ -85,7 +85,7 @@ h1 { font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif); letter-spacing: -.0
 .ctl input[type=checkbox] { width: 1.05rem; height: 1.05rem; accent-color: var(--accent); }
 .btn { font: 500 .8125rem/1 var(--sans); color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: .55rem .85rem; cursor: pointer; min-height: 2.25rem; }
 .btn:hover { border-color: var(--muted); }
-#lmap { height: clamp(380px, 68vh, 760px); background: var(--mapbg); border-radius: 4px; }
+#lmap { height: clamp(380px, 68vh, 760px); background: #1d3a30; border-radius: 6px; box-shadow: inset 0 0 0 1px #2f5244; }
 #lmap:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 .leaflet-container { font: 400 .8125rem/1.4 var(--sans); }
 .leaflet-popup-content { margin: .8rem 1rem; color: #1c2b24; font: 400 .8125rem/1.45 var(--sans); }
@@ -93,7 +93,26 @@ h1 { font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif); letter-spacing: -.0
 .leaflet-popup-content dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: .1rem .9rem; }
 .leaflet-popup-content dt { color: #56655d; }
 .leaflet-popup-content dd { margin: 0; font-weight: 600; text-align: right; }
+.leaflet-container a.leaflet-popup-close-button { color: #56655d; }
+@media (prefers-reduced-motion: reduce) { .figs a img, .guides button::after { transition: none; } }
 .mapnote { font-size: .75rem; color: var(--muted); margin: .5rem 0 0; }
+.seg button .ramp { display: inline-flex; gap: 1px; margin-right: .45rem; vertical-align: -1px; }
+.seg button .ramp i { width: 6px; height: 10px; border-radius: 1px; display: block; }
+.guides { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1.25rem; border-top: 1px solid var(--rule); }
+.guides button { display: flex; flex-direction: column; justify-content: flex-start; font: inherit; color: var(--ink); background: none; border: 0; border-right: 1px solid var(--rule); text-align: left; padding: 1rem 1.25rem 1.1rem 0; margin-right: 1.25rem; cursor: pointer; position: relative; }
+.guides button:last-child { border-right: 0; margin-right: 0; }
+.guides button::after { content: ""; position: absolute; left: 0; right: 1.25rem; top: -1px; height: 3px; background: transparent; transition: background .2s ease; }
+.guides button[aria-pressed="true"]::after { background: var(--accent); }
+.guides .q { display: block; font: 600 1.0625rem/1.3 var(--serif); margin-bottom: .3rem; }
+.guides .a { display: block; font-size: .8125rem; color: var(--muted); line-height: 1.45; }
+.guides button:hover .q { color: var(--accent); }
+.split-bar { display: flex; height: .7rem; border-radius: 2px; overflow: hidden; margin: .9rem 0 .35rem; background: var(--rule); }
+.split-bar .s { background: #1d9e75; }
+.split-bar .f { background: #ef9f27; }
+.split-key { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); }
+.meter { margin-top: .9rem; font-size: .75rem; color: var(--muted); }
+.meter .track { height: .45rem; border-radius: 999px; background: var(--rule); margin-top: .3rem; position: relative; }
+.meter .track i { position: absolute; top: -3px; width: 3px; height: calc(100% + 6px); background: var(--accent); border-radius: 2px; }
 .north { background: rgba(255,255,255,.88); border-radius: 4px; padding: 4px 6px; color: #1c2b24; font: 600 .75rem/1 var(--sans); text-align: center; }
 .scalebar { background: rgba(255,255,255,.88); border-radius: 4px; padding: 4px 8px 5px; color: #1c2b24; font: 500 .75rem/1 var(--sans); }
 .scalebar i { display: block; height: 6px; border: 2px solid #1c2b24; border-top: 0; margin-top: 3px; }
@@ -116,6 +135,14 @@ h1 { font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif); letter-spacing: -.0
 .totals .attrs { font-size: .8125rem; }
 
 section { padding: 4rem 0; border-top: 1px solid var(--rule); }
+.tint { --tint: #e6ece5; background: var(--tint); box-shadow: 0 0 0 100vmax var(--tint); clip-path: inset(0 -100vmax); border-top: 0; }
+:root[data-theme="dark"] .tint { --tint: #26322d; }
+.tint + section { border-top: 0; }
+.tobtn { margin-top: 1.25rem; font: 600 .875rem/1 var(--sans); color: var(--paper); background: var(--accent); border: 0; border-radius: 999px; padding: .75rem 1.1rem; cursor: pointer; }
+.tobtn:hover { filter: brightness(1.08); }
+.figs a { display: block; border-radius: 3px; }
+.figs a img { transition: transform .25s ease, box-shadow .25s ease; }
+.figs a:hover img { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
 main > section:first-child { border-top: 0; }
 h2 { font: 600 1.75rem/1.2 var(--serif); margin: 0 0 1rem; font-variation-settings: "opsz" 36; }
 h3 { font: 600 1.0625rem/1.3 var(--sans); margin: 0 0 .5rem; }
@@ -195,6 +222,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 @media (max-width: 860px) {
   .intro, .spatial, .split, .team, .figs { grid-template-columns: 1fr; gap: 2rem; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guides { grid-template-columns: 1fr; }
+  .guides button { border-right: 0; margin-right: 0; border-bottom: 1px solid var(--rule); }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
@@ -237,10 +266,10 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       <div>
         <div class="controls">
           <div class="seg" role="group" aria-label="Map layer" id="layers">
-            <button type="button" data-layer="vol" aria-pressed="true">Wood volume</button>
-            <button type="button" data-layer="pieces" aria-pressed="false">Piece density</button>
-            <button type="button" data-layer="stem" aria-pressed="false">Full stem share</button>
-            <button type="button" data-layer="hot" aria-pressed="false">Hot spots (Gi*)</button>
+            <button type="button" data-layer="vol" aria-pressed="true"><span class="ramp" aria-hidden="true"><i style="background:#d9f0a3"></i><i style="background:#78c679"></i><i style="background:#006837"></i></span>Wood volume</button>
+            <button type="button" data-layer="pieces" aria-pressed="false"><span class="ramp" aria-hidden="true"><i style="background:#d0d1e6"></i><i style="background:#67a9cf"></i><i style="background:#016c59"></i></span>Piece density</button>
+            <button type="button" data-layer="stem" aria-pressed="false"><span class="ramp" aria-hidden="true"><i style="background:#a6611a"></i><i style="background:#f5f5f5"></i><i style="background:#018571"></i></span>Full stem share</button>
+            <button type="button" data-layer="hot" aria-pressed="false"><span class="ramp" aria-hidden="true"><i style="background:#2166ac"></i><i style="background:#e8e8e4"></i><i style="background:#b2182b"></i></span>Hot spots (Gi*)</button>
           </div>
           <label class="ctl"><input type="checkbox" id="top10" checked> Densest 10% outline</label>
           <label class="ctl ctl-opacity" for="opacity">Opacity <input type="range" id="opacity" min="0.2" max="1" step="0.05" value="0.92"></label>
@@ -248,12 +277,18 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         </div>
         <div id="lmap" tabindex="0" role="application" aria-label="Map of 300 quadrants. Arrow keys move between quadrants, Enter opens details, plus and minus zoom."><p class="notice" id="map-notice">Loading the map.</p></div>
         <p class="mapnote">Each square is one 127 m (1.6 ha) quadrant on an anonymized grid. No coordinates, no basemap: the site is private land.</p>
+        <div class="guides" role="group" aria-label="Guided views of the map">
+          <button type="button" data-guide="vol" aria-pressed="false"><span class="q">Where is the most wood?</span><span class="a">The densest 10% of the area, outlined in gold, holds 43% of the wood.</span></button>
+          <button type="button" data-guide="stem" aria-pressed="false"><span class="q">What kind of wood?</span><span class="a">Full stems are 24.8% of the pieces but 57.4% of the volume. Teal squares are stem-dominated.</span></button>
+          <button type="button" data-guide="hot" aria-pressed="false"><span class="q">Is the clustering real?</span><span class="a" id="guide-hot">Gi* hot spots cover a small share of the area but a large share of the wood.</span></button>
+        </div>
       </div>
       <aside class="panel">
         <div class="legend" id="legend"></div>
         <div aria-live="polite"><h2 id="q-title">Pick a quadrant</h2>
         <p class="sub" id="q-sub">Click a square on the map, or focus the map and use the arrow keys.</p>
         <dl class="attrs" id="q-attrs"></dl></div>
+        <div id="q-extra"></div>
         <div class="phist" id="q-hist"></div>
         <div class="totals">
           <h2>Whole site</h2>
@@ -266,7 +301,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 
 <div class="wrap">
   <main>
-    <section aria-labelledby="spatial" id="spatial-section">
+    <section aria-labelledby="spatial" id="spatial-section" class="tint">
       <h2 id="spatial">Spatial analysis: is the clustering real?</h2>
       <p class="section-lead">Wood volume per hectare was tested for spatial autocorrelation across the 300 quadrants, using queen contiguity (neighbors share an edge or corner), row-standardized weights and 999 permutations.</p>
       <div class="spatial">
@@ -274,6 +309,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
           <p class="bigstat"><b id="moran">0.378</b><span id="moran-sub">Global Moran's I, pseudo p = 0.001</span></p>
           <p>High-volume quadrants sit next to other high-volume quadrants far more than chance would produce.</p>
           <div class="vs" id="vs" aria-label="Hot spots: share of area against share of wood"></div>
+          <button type="button" class="tobtn" id="to-hot">See the hot spots on the map</button>
           <div class="interp">
             <h3>What it means for land managers</h3>
             <p id="interp"></p>
@@ -314,11 +350,11 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       <h2 id="results">Results from the paper</h2>
       <p class="section-lead">Figures from the manuscript. Captions follow its wording; the bold line is the takeaway.</p>
       <div class="figs">
-        <figure><img src="assets/img/fig_site.webp" width="1600" height="1625" alt="Layout of the 76 orthomosaic tiles, with six clipped tiles at the edge shaded darker" loading="lazy"><figcaption><b>76 tiles cover 478.7 ha.</b> Layout of the 76 orthomosaic tiles, covering 478.7 ha of imagery within a 655.7 ha bounding box. The six darker tiles are clipped at the edge.</figcaption></figure>
-        <figure><img src="assets/img/fig_density.png" width="2000" height="919" alt="Two quadrant maps: pieces per hectare and wood volume per hectare" loading="lazy"><figcaption><b>Wood clusters in a few quadrants.</b> Pieces per hectare and wood volume per hectare in each 127 m (1.6 ha) quadrant, in quantile classes. The manuscript's Figure 7 shows the same data per tile.</figcaption></figure>
-        <figure class="full"><img src="assets/img/fig_sizes.webp" width="1600" height="521" alt="Length histogram, width histogram and a length against width scatter by class" loading="lazy"><figcaption><b>Most pieces are shorter than the 6.78 m stem cut.</b> Length histogram with the stem threshold marked, width histogram with the debris floor marked, and a length against width scatter coloured by class. Log axes.</figcaption></figure>
-        <figure><img src="assets/img/fig_volume.webp" width="1600" height="979" alt="Histogram of estimated volume per piece for full stems and fragments" loading="lazy"><figcaption><b>Full stems carry the large volumes.</b> Volume distribution histogram, full stems and fragments as separate series. Log x axis given the skew.</figcaption></figure>
-        <figure><img src="assets/img/fig_gallery.webp" width="1600" height="854" alt="Eight example pieces with outlines, centerlines and measured lengths" loading="lazy"><figcaption><b>Each piece is measured along its centerline.</b> Example gallery, four masks per class, each with its extracted centerline overlaid and its measured length labelled, including one borderline case per class (asterisk).</figcaption></figure>
+        <figure><a href="assets/img/fig_site.webp" target="_blank" rel="noopener" aria-label="Open the full-size figure"><img src="assets/img/fig_site.webp" width="1600" height="1625" alt="Layout of the 76 orthomosaic tiles, with six clipped tiles at the edge shaded darker" loading="lazy"></a><figcaption><b>76 tiles cover 478.7 ha.</b> Layout of the 76 orthomosaic tiles, covering 478.7 ha of imagery within a 655.7 ha bounding box. The six darker tiles are clipped at the edge.</figcaption></figure>
+        <figure><a href="assets/img/fig_density.png" target="_blank" rel="noopener" aria-label="Open the full-size figure"><img src="assets/img/fig_density.png" width="2000" height="919" alt="Two quadrant maps: pieces per hectare and wood volume per hectare" loading="lazy"></a><figcaption><b>Wood clusters in a few quadrants.</b> Pieces per hectare and wood volume per hectare in each 127 m (1.6 ha) quadrant, in quantile classes. The manuscript's Figure 7 shows the same data per tile.</figcaption></figure>
+        <figure class="full"><a href="assets/img/fig_sizes.webp" target="_blank" rel="noopener" aria-label="Open the full-size figure"><img src="assets/img/fig_sizes.webp" width="1600" height="521" alt="Length histogram, width histogram and a length against width scatter by class" loading="lazy"></a><figcaption><b>Most pieces are shorter than the 6.78 m stem cut.</b> Length histogram with the stem threshold marked, width histogram with the debris floor marked, and a length against width scatter coloured by class. Log axes.</figcaption></figure>
+        <figure><a href="assets/img/fig_volume.webp" target="_blank" rel="noopener" aria-label="Open the full-size figure"><img src="assets/img/fig_volume.webp" width="1600" height="979" alt="Histogram of estimated volume per piece for full stems and fragments" loading="lazy"></a><figcaption><b>Full stems carry the large volumes.</b> Volume distribution histogram, full stems and fragments as separate series. Log x axis given the skew.</figcaption></figure>
+        <figure><a href="assets/img/fig_gallery.webp" target="_blank" rel="noopener" aria-label="Open the full-size figure"><img src="assets/img/fig_gallery.webp" width="1600" height="854" alt="Eight example pieces with outlines, centerlines and measured lengths" loading="lazy"></a><figcaption><b>Each piece is measured along its centerline.</b> Example gallery, four masks per class, each with its extracted centerline overlaid and its measured length labelled, including one borderline case per class (asterisk).</figcaption></figure>
       </div>
     </section>
 
@@ -504,13 +540,20 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
       "<dt>Imaged area</dt><dd>" + fmt(c.area_ha, 2) + " ha</dd>";
     var key = state.layer === "hot" ? "vol_ha" : L.key;
     $("q-hist").innerHTML = histogramSVG(key, c[key], L.unit);
+    var denser = Math.round(100 * (cells.length - c.rank) / cells.length);
+    var split = c.volume_m3 > 0
+      ? '<div class="split-bar" role="img" aria-label="Volume split: ' + fmt(c.stem_share, 0) + '% full stems"><i class="s" style="width:' + c.stem_share + '%"></i><i class="f" style="width:' + (100 - c.stem_share) + '%"></i></div>' +
+        '<div class="split-key"><span>Full stems ' + fmt(c.stem_share, 0) + '%</span><span>Fragments ' + fmt(100 - c.stem_share, 0) + '%</span></div>'
+      : "";
+    $("q-extra").innerHTML = split + '<div class="meter">Denser than ' + denser + '% of quadrants<div class="track"><i style="left:calc(' + denser + '% - 1px)"></i></div></div>';
   }
 
+  var EDGE = "#1d3a30";
   function select(c, openPopup) {
-    if (state.sel) rects[state.sel.id].setStyle({ weight: 0.6, color: "#ffffff" });
+    if (state.sel) rects[state.sel.id].setStyle({ weight: 1, color: EDGE });
     state.sel = c;
     var r = rects[c.id];
-    r.setStyle({ weight: 3, color: "#111" });
+    r.setStyle({ weight: 3.5, color: "#ffffff" });
     r.bringToFront();
     if (top10Group && map.hasLayer(top10Group)) top10Group.eachLayer(function (l) { l.bringToFront(); });
     showQuadrant(c);
@@ -564,11 +607,11 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     map.setMinZoom(homeZoom - 0.5);
     cells.forEach(function (c) {
       var r = L.rectangle([[-c.row - 1, c.col], [-c.row, c.col + 1]], {
-        weight: 0.6, color: "#ffffff", fillOpacity: state.opacity, fillColor: classOf("vol", c)
+        weight: 1, color: EDGE, fillOpacity: state.opacity, fillColor: classOf("vol", c)
       }).addTo(map);
       r.bindPopup(function () { return popupHTML(c); }, { maxWidth: 280 });
-      r.on("mouseover", function () { if (state.sel !== c) r.setStyle({ weight: 2.2, color: "#1c2b24" }); });
-      r.on("mouseout", function () { if (state.sel !== c) r.setStyle({ weight: 0.6, color: "#ffffff" }); });
+      r.on("mouseover", function () { if (state.sel !== c) r.setStyle({ weight: 2.5, color: "#f1f5f2" }); });
+      r.on("mouseout", function () { if (state.sel !== c) r.setStyle({ weight: 1, color: EDGE }); });
       r.on("click", function () { select(c, false); });
       rects[c.id] = r;
     });
@@ -582,7 +625,8 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     scale.update();
     $("reset").addEventListener("click", function () {
       map.fitBounds(bounds, { padding: [10, 10] }); map.closePopup();
-      if (state.sel) { rects[state.sel.id].setStyle({ weight: 0.6, color: "#ffffff" }); state.sel = null; }
+      if (state.sel) { rects[state.sel.id].setStyle({ weight: 1, color: EDGE }); state.sel = null; }
+      $("q-extra").innerHTML = "";
       $("q-title").textContent = "Pick a quadrant";
       $("q-sub").textContent = "Click a square on the map, or focus the map and use the arrow keys.";
       $("q-attrs").innerHTML = "";
@@ -655,6 +699,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     function row(label, val, color) {
       return '<div class="row"><span>' + label + '</span><div class="bar"><i style="width:' + val + "%;background:" + color + '"></i></div><b>' + fmt(val, 0) + "%</b></div>";
     }
+    $("guide-hot").textContent = "Gi* hot spots cover " + fmt(ha, 0) + "% of the area and hold " + fmt(hv, 0) + "% of the wood.";
     $("vs").innerHTML = "<h3>Gi* hot spots</h3>" + row("Share of area", ha, "#9aa6a0") + row("Share of wood", hv, "#b2182b");
     $("interp").textContent = "Hot spots cover " + fmt(ha, 0) + "% of the area but hold " + fmt(hv, 0) +
       "% of the wood. Salvage and fuel reduction that start in the hot spot quadrants reach a large share of the wood with a small share of the travel. Cold spots hold little wood and can wait.";
@@ -684,12 +729,24 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     $("conc-chart").innerHTML = o.join("");
   }
 
+  function setLayer(name) {
+    document.querySelectorAll("#layers button").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.layer === name)); });
+    document.querySelectorAll(".guides button").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.guide === name)); });
+    state.layer = name;
+    if (map) restyle();
+  }
   document.querySelectorAll("#layers button").forEach(function (b) {
+    b.addEventListener("click", function () { setLayer(b.dataset.layer); });
+  });
+  document.querySelectorAll(".guides button").forEach(function (b) {
     b.addEventListener("click", function () {
-      document.querySelectorAll("#layers button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      state.layer = b.dataset.layer;
-      if (map) restyle();
+      if (b.dataset.guide === "vol" && !$("top10").checked) { $("top10").checked = true; $("top10").dispatchEvent(new Event("change")); }
+      setLayer(b.dataset.guide);
     });
+  });
+  $("to-hot").addEventListener("click", function () {
+    setLayer("hot");
+    $("lmap").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
   });
   $("top10").addEventListener("change", function () {
     if (!map) return;
