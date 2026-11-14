@@ -83,3 +83,16 @@ far more than chance would produce. The clustering is real.
   strongly clustered** (Moran's I 0.378, p = 0.001). Hot spots cover 14% of
   the area and hold 38% of the wood."
 - Conclusions: "wood is spatially clustered in a few hot spots."
+
+## Web map classes
+
+Written by `scripts/build_web_layers.py` from `docs/assets/site.json`.
+Quadrants with no wood form their own class; the rest are split into five
+quantile classes (equal numbers of quadrants). Stem share uses fixed
+20-point steps.
+
+| Layer | Class breaks |
+|---|---|
+| Wood volume (m3/ha) | 0, 5.5, 19.1, 30.9, 55.5, 268.8 |
+| Piece density (pieces/ha) | 0, 11.2, 32.9, 55.2, 84.3, 203.4 |
+| Full stem share of volume (%) | 0, 20, 40, 60, 80, 100 |

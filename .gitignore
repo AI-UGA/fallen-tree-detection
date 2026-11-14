@@ -55,7 +55,7 @@ figures/*_coords*
 manuscript/
 figure.zip
 site_images_raw/
-figures/
+/figures/
 gisday-website.zip
 
 # Local tooling and downloaded public boundary data used only to draw the locator

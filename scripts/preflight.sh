@@ -4,7 +4,7 @@
 #
 #   bash scripts/preflight.sh
 #
-# Checks seven failure classes. Exits non-zero if any hard failure is found.
+# Checks eight failure classes. Exits non-zero if any hard failure is found.
 # Warnings are printed but do not block.
 
 set -uo pipefail
@@ -85,7 +85,8 @@ HITS=$(grep -rnE '\b[23][0-9]{5}\.[0-9]+\b.*\b3[0-9]{6}\.[0-9]+\b' $FILES 2>/dev
 report FAIL "no literal UTM coordinate pairs" "$HITS"
 
 # 5. Oversized files. GitHub rejects anything over 100 MB and warns above 50.
-HITS=$(find . -type f -size +10M -not -path './.git/*' 2>/dev/null || true)
+# Tracked files only: ignored local inputs (figure TIFFs, the manuscript) never ship.
+HITS=$(for f in $FILES; do [ -f "$f" ] && [ "$(wc -c < "$f")" -gt 10485760 ] && echo "$f"; done || true)
 report WARN "no files over 10 MB" "$HITS"
 
 # 6. Notebook outputs. Committed output embeds base64 images in git history
@@ -109,8 +110,15 @@ report FAIL "notebooks have no stored output" "$(echo "$HITS" | sed '/^$/d')"
 #    Also totals from an earlier run (23,603 detections, 21,205 objects,
 #    14,237 m3, 29.74 m3/ha).
 SUPERSEDED='42\.8|38\.5|35\.8|25\.4|1\.52|17\.1 m3|37\.4 m3|22\.2 m3|19\.0 m3|upper bound|MIN_SIDE|23,603|21,205|14,237|29\.74'
-HITS=$(grep -rnE "$SUPERSEDED" $FILES 2>/dev/null || true)
+# Generated numeric data (site.json, quadrant tables) is excluded: its values
+# can contain these digit runs by chance.
+HITS=$(grep -rnE "$SUPERSEDED" $FILES 2>/dev/null   | grep -vE '^docs/assets/(site\.json|data/)' || true)
 report WARN "no superseded numbers" "$HITS"
+
+# 8. Published assets: no GPS or GeoTIFF metadata in images under docs/ and
+#    poster/, no latitude/longitude pairs, no 36665 digit run, no road name.
+HITS=$(python scripts/check_privacy_assets.py 2>&1 || true)
+report FAIL "no location metadata or coordinates in published assets" "$HITS"
 
 echo "================================================================"
 echo "failures: $FAILURES   warnings: $WARNINGS"
