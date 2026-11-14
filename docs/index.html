@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fallen wood after Hurricane Helene, measured from the air</title>
-<meta name="description" content="A drone-based inventory of coarse woody debris on a Hurricane Helene windthrow site in the Georgia Coastal Plain. AI@UGA and the Warnell School of Forestry and Natural Resources, University of Georgia.">
+<meta name="description" content="An interactive map of coarse woody debris on a Hurricane Helene windthrow site in the Georgia Coastal Plain, measured piece by piece from drone imagery. AI@UGA and the Warnell School of Forestry and Natural Resources, University of Georgia.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root {
   --paper: #f3f5f1;
@@ -19,12 +20,11 @@
   --frag: #ef9f27;
   --focus: #1d6fd1;
   --accent: #1f5c46;
+  --mapbg: #fbfcfa;
   --serif: "Newsreader", Georgia, "Times New Roman", serif;
   --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
   box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 :root[data-theme="dark"] {
   --paper: #1f2925;
@@ -35,291 +35,317 @@
   --frag: #f2ae4a;
   --focus: #6aa8ff;
   --accent: #86cdb0;
+  --mapbg: #26312c;
   color-scheme: dark;
 }
-html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-
-/* The hero sits on a deep pine band so the warm map colours stand out. */
-.band {
-  --paper: #17342a;
-  --ink: #f1f5f2;
-  --muted: #b3c8bd;
-  --rule: #2f5244;
-  --accent: #f6c055;
-  --focus: #ffd27a;
-  --ramp-0: #43513f;
-  --ramp-1: #6c6638;
-  --ramp-2: #96712c;
-  --ramp-3: #c47f23;
-  --ramp-4: #e89b2c;
-  --ramp-5: #f7c158;
-  --ramp-6: #ffeaa8;
-  background: var(--paper);
-  color: var(--ink);
-}
-:root[data-theme="dark"] .band { --paper: #142c23; }
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
-  background: #17342a; z-index: 10;
-}
-main > section:first-child { border-top: 0; }
-.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; margin: 0 0 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); }
-.kpis b { display: block; font: 600 clamp(1.7rem, 2.8vw, 2.3rem)/1.05 var(--serif); color: var(--accent); }
-.kpis span { display: block; margin-top: .35rem; font-size: .875rem; color: var(--muted); line-height: 1.35; }
 *, *::before, *::after { box-sizing: inherit; }
 body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font: 400 1rem/1.6 var(--sans);
-  font-variant-numeric: tabular-nums;
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 1rem/1.6 var(--sans); font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.top a, .people a { color: inherit; }
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+::selection { background: #f6c055; color: #17342a; }
 
 .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem; }
+.wrap-wide { max-width: 88rem; margin: 0 auto; padding: 0 1.5rem; }
 
-.top {
-  display: flex; justify-content: space-between; align-items: baseline;
-  gap: 1rem; flex-wrap: wrap;
-  padding: 1.25rem 0; font-size: .875rem; color: var(--muted);
+/* Hero band: deep pine so the map colours stand out. */
+.band {
+  --paper: #17342a; --ink: #f1f5f2; --muted: #b3c8bd; --rule: #2f5244;
+  --accent: #f6c055; --focus: #ffd27a;
+  background: var(--paper); color: var(--ink); padding-bottom: 2.5rem;
 }
-.top nav { display: flex; gap: 1.25rem; align-items: center; }
-
-/* Hero: the map is the subject, so it gets the room. */
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
-  padding: 2rem 0 4rem;
-}
-h1 {
-  font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif);
-  letter-spacing: -.015em;
-  margin: 0 0 1.25rem;
-  font-variation-settings: "opsz" 72;
-}
-.lead { font: 400 1.1875rem/1.55 var(--serif); margin: 0 0 2rem; max-width: 34em; }
-.facts { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .45rem 1.25rem; }
-.facts dt { color: var(--muted); font-size: .9375rem; }
-.facts dd { margin: 0; font-weight: 600; text-align: right; }
-
-.map-head { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.map-head p { margin: 0; color: var(--muted); font-size: .9375rem; }
-.metric { display: flex; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; gap: 2px; }
-.metric button {
-  font: 500 .8125rem/1 var(--sans); color: var(--muted);
-  background: transparent; border: 0; border-radius: 999px;
-  padding: .55rem .85rem; cursor: pointer;
-}
-.metric button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.metric button:not([aria-pressed="true"]):hover { color: var(--ink); }
-
-.map { position: relative; }
-.map svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
-.map svg:focus-visible { outline: 2px solid var(--focus); outline-offset: 6px; border-radius: 2px; }
-.cell { cursor: pointer; }
-.cell:hover { stroke: var(--ink); stroke-width: .8; }
-.cell.sel { stroke: var(--ink); stroke-width: 1.4; }
-
-.map-foot {
-  display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
-  gap: 1.5rem; margin-top: 1rem; align-items: start;
-}
-.legend { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
-.legend i { display: block; height: 12px; border-radius: 2px; }
-.legend span { display: block; font-size: .75rem; color: var(--muted); margin-top: .3rem; white-space: nowrap; }
-.theme-btn { font: 500 .875rem/1 var(--sans); color: inherit; background: none; border: 1px solid var(--rule); border-radius: 999px; padding: .35rem .75rem; cursor: pointer; }
+:root[data-theme="dark"] .band { --paper: #142c23; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; padding: 1.25rem 0; font-size: .875rem; color: var(--muted); }
+.top nav { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+.top a { color: inherit; }
+.theme-btn { font: 500 .875rem/1 var(--sans); color: inherit; background: none; border: 1px solid var(--rule); border-radius: 999px; padding: .4rem .8rem; cursor: pointer; }
 .theme-btn:hover { border-color: var(--muted); }
-.legend-caption { font-size: .8125rem; color: var(--muted); margin-top: .5rem; }
-.readout { font-size: .9375rem; min-height: 4.8em; }
-.readout strong { font-weight: 600; }
-.readout .row { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; color: var(--muted); }
-.readout .row span b { color: var(--ink); font-weight: 600; }
+.intro { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem 3rem; align-items: end; padding: 1rem 0 1.75rem; }
+h1 { font: 600 clamp(2rem, 3.6vw, 2.9rem)/1.08 var(--serif); letter-spacing: -.015em; margin: 0 0 1rem; font-variation-settings: "opsz" 72; }
+.lead { font: 400 1.125rem/1.55 var(--serif); margin: 0; max-width: 34em; color: var(--muted); }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; margin: 0; }
+.kpis div { border-top: 1px solid var(--rule); padding-top: .75rem; }
+.kpis b { display: block; font: 600 clamp(1.6rem, 2.6vw, 2.2rem)/1.05 var(--serif); color: var(--accent); white-space: nowrap; }
+.kpis b small { font-size: .55em; font-weight: 400; color: var(--muted); }
+.kpis span { display: block; margin-top: .35rem; font-size: .8125rem; color: var(--muted); line-height: 1.35; }
+
+/* Map and linked panel */
+.mapgrid { display: grid; grid-template-columns: minmax(0, 1fr) 22rem; gap: 1.5rem; align-items: start; }
+.controls { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; margin-bottom: .75rem; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { font: 500 .8125rem/1 var(--sans); color: var(--muted); background: transparent; border: 0; border-radius: 999px; padding: .55rem .8rem; cursor: pointer; min-height: 2.25rem; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg button:not([aria-pressed="true"]):hover { color: var(--ink); }
+.ctl { display: flex; align-items: center; gap: .5rem; font-size: .8125rem; color: var(--muted); }
+.ctl input[type=range] { width: 7rem; accent-color: var(--accent); }
+.ctl input[type=checkbox] { width: 1.05rem; height: 1.05rem; accent-color: var(--accent); }
+.btn { font: 500 .8125rem/1 var(--sans); color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: .55rem .85rem; cursor: pointer; min-height: 2.25rem; }
+.btn:hover { border-color: var(--muted); }
+#lmap { height: clamp(380px, 68vh, 760px); background: var(--mapbg); border-radius: 4px; }
+#lmap:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.leaflet-container { font: 400 .8125rem/1.4 var(--sans); }
+.leaflet-popup-content { margin: .8rem 1rem; color: #1c2b24; font: 400 .8125rem/1.45 var(--sans); }
+.leaflet-popup-content h4 { font: 600 .9375rem/1.3 var(--sans); margin: 0 0 .35rem; }
+.leaflet-popup-content dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: .1rem .9rem; }
+.leaflet-popup-content dt { color: #56655d; }
+.leaflet-popup-content dd { margin: 0; font-weight: 600; text-align: right; }
+.mapnote { font-size: .75rem; color: var(--muted); margin: .5rem 0 0; }
+.north { background: rgba(255,255,255,.88); border-radius: 4px; padding: 4px 6px; color: #1c2b24; font: 600 .75rem/1 var(--sans); text-align: center; }
+.scalebar { background: rgba(255,255,255,.88); border-radius: 4px; padding: 4px 8px 5px; color: #1c2b24; font: 500 .75rem/1 var(--sans); }
+.scalebar i { display: block; height: 6px; border: 2px solid #1c2b24; border-top: 0; margin-top: 3px; }
+
+.panel { border: 1px solid var(--rule); border-radius: 4px; padding: 1.1rem 1.1rem 1.25rem; }
+.panel h3 { font: 600 1.125rem/1.25 var(--serif); margin: 0 0 .25rem; }
+.panel .sub { font-size: .8125rem; color: var(--muted); margin: 0 0 .9rem; }
+.legend { margin: 0 0 1rem; }
+.legend .ttl { font-size: .8125rem; font-weight: 600; margin-bottom: .4rem; }
+.legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .25rem; }
+.legend li { display: flex; align-items: center; gap: .55rem; font-size: .8125rem; }
+.legend i { width: 1.1rem; height: .85rem; border-radius: 2px; flex: none; border: 1px solid rgba(0,0,0,.18); }
+.legend .method { font-size: .75rem; color: var(--muted); margin-top: .45rem; line-height: 1.4; }
+.attrs { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .3rem 1rem; font-size: .875rem; }
+.attrs dt { color: var(--muted); }
+.attrs dd { margin: 0; font-weight: 600; text-align: right; }
+.phist svg { display: block; width: 100%; height: auto; margin-top: .75rem; }
+.phist text { fill: var(--muted); font: 400 10px var(--sans); }
+.totals { border-top: 1px solid var(--rule); margin-top: 1rem; padding-top: .8rem; }
+.totals .attrs { font-size: .8125rem; }
 
 section { padding: 4rem 0; border-top: 1px solid var(--rule); }
+main > section:first-child { border-top: 0; }
 h2 { font: 600 1.75rem/1.2 var(--serif); margin: 0 0 1rem; font-variation-settings: "opsz" 36; }
-.section-lead { max-width: 38em; margin: 0 0 2.25rem; color: var(--muted); }
+h3 { font: 600 1.0625rem/1.3 var(--sans); margin: 0 0 .5rem; }
+.section-lead { max-width: 40em; margin: 0 0 2.25rem; color: var(--muted); }
 
-.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; }
-.steps img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 3px; margin-bottom: 1rem; background: var(--rule); }
+.spatial { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 3rem; align-items: start; }
+.bigstat { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; margin: 0 0 .5rem; }
+.bigstat b { font: 600 2.6rem/1 var(--serif); color: var(--accent); }
+.bigstat span { color: var(--muted); font-size: .9375rem; }
+.vs { margin: 1.5rem 0 0; }
+.vs .row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 3.5rem; gap: .75rem; align-items: center; margin-bottom: .5rem; font-size: .875rem; }
+.vs .bar { height: 1.4rem; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.vs .bar i { display: block; height: 100%; }
+.vs .row b { text-align: right; }
+.interp { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); max-width: 36em; }
+.conc svg { display: block; width: 100%; height: auto; }
+.conc text { fill: var(--muted); font: 400 12px var(--sans); }
+.conc .lab { fill: var(--ink); font-weight: 600; }
+.conc .axis { stroke: var(--rule); }
+.conc .even { stroke: var(--muted); stroke-dasharray: 4 4; }
+.conc .curve { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.conc .mark { fill: var(--accent); }
+.conc figcaption { font-size: .875rem; color: var(--muted); margin-top: .5rem; }
+
+.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.25rem; }
 .steps li { counter-increment: step; }
-.steps li::before {
-  content: counter(step);
-  display: block; font: 600 1.5rem/1 var(--serif); margin-bottom: .6rem; color: var(--accent);
-}
-.steps h3 { font: 600 1rem/1.3 var(--sans); margin: 0 0 .35rem; }
-.steps p { margin: 0; font-size: .9375rem; color: var(--muted); }
+.steps img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 3px; margin-bottom: .85rem; background: var(--rule); }
+.steps li::before { content: counter(step); display: block; font: 600 1.4rem/1 var(--serif); margin-bottom: .5rem; color: var(--accent); }
+.steps h3 { margin: 0 0 .3rem; font-size: 1rem; }
+.steps p { margin: 0; font-size: .875rem; color: var(--muted); }
+.note { margin: 2rem 0 0; padding: 1rem 1.25rem; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); max-width: 52em; font-size: .9375rem; }
 
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
-.share { margin-bottom: 1.75rem; }
+.share { margin-bottom: 1.5rem; }
 .share-label { display: flex; justify-content: space-between; font-size: .9375rem; margin-bottom: .45rem; }
 .share-label span:last-child { color: var(--muted); }
 .share-bar { display: flex; height: 2.25rem; border-radius: 3px; overflow: hidden; }
 .share-bar div { display: flex; align-items: center; padding: 0 .6rem; font: 600 .875rem/1 var(--sans); color: #fff; white-space: nowrap; overflow: hidden; }
-.share-bar .s { background: var(--stem); }
-.share-bar .f { background: var(--frag); color: #2b1a04; }
-.key { display: flex; gap: 1.25rem; font-size: .875rem; color: var(--muted); }
+.share-bar .s { background: #1d9e75; }
+.share-bar .f { background: #ef9f27; color: #2b1a04; }
+.key { display: flex; gap: 1.25rem; font-size: .875rem; color: var(--muted); flex-wrap: wrap; }
 .key i { display: inline-block; width: .75rem; height: .75rem; border-radius: 2px; margin-right: .4rem; vertical-align: -1px; }
 
-.hist svg { display: block; width: 100%; height: auto; }
-.hist text { fill: var(--muted); font: 400 11px var(--sans); }
-.hist .axis { stroke: var(--rule); }
-.hist .cut { stroke: var(--ink); stroke-dasharray: 3 3; }
-.hist .cut-label { fill: var(--ink); }
+.figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 2rem; }
+.figs figure { margin: 0; }
+.figs .full { grid-column: 1 / -1; }
+.figs img { display: block; width: 100%; height: auto; border-radius: 3px; background: #fff; }
+.figs figcaption { margin-top: .6rem; font-size: .875rem; color: var(--muted); max-width: 46em; }
+.figs figcaption b { color: var(--ink); }
 
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem; }
-.stats h3 { font: 600 1rem/1.3 var(--sans); margin: 0 0 .6rem; padding-top: .6rem; border-top: 2px solid var(--ink); }
-.stats dl { margin: 0; }
-.stats dl div { display: flex; justify-content: space-between; gap: 1rem; padding: .4rem 0; border-bottom: 1px solid var(--rule); font-size: .9375rem; }
-.stats dt { color: var(--muted); }
-.stats dd { margin: 0; font-weight: 600; text-align: right; white-space: nowrap; }
-.conc { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 3rem; align-items: center; margin-top: 3.5rem; }
-.conc h3 { font: 600 1.375rem/1.25 var(--serif); margin: 0 0 .75rem; }
-.conc p { margin: 0; color: var(--muted); }
-.conc svg { display: block; width: 100%; height: auto; }
-.conc text { fill: var(--muted); font: 400 11px var(--sans); }
-.conc .axis { stroke: var(--rule); }
-.conc .even { stroke: var(--muted); stroke-dasharray: 3 3; }
-.conc .curve { stroke: var(--accent); stroke-width: 2.5; fill: none; }
-.conc .mark { fill: var(--accent); }
-.wide { margin: 2.5rem 0 0; }
-.wide img, .gallery img { display: block; width: 100%; height: auto; border-radius: 3px; background: #fff; }
-.wide figcaption, .gallery figcaption { margin-top: .5rem; font-size: .875rem; color: var(--muted); }
-.gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 2rem; }
-.gallery figure { margin: 0; }
+.dl { display: flex; flex-wrap: wrap; gap: .75rem; margin: 0 0 1.5rem; }
+.dl a { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--rule); border-radius: 999px; padding: .55rem .9rem; text-decoration: none; font-weight: 500; font-size: .875rem; }
+.dl a:hover { border-color: var(--accent); }
+table.dict { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.dict th, .dict td { text-align: left; padding: .45rem .6rem .45rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.dict th { font-weight: 600; color: var(--muted); }
+.dict code { font-size: .8125rem; }
+.tablewrap { overflow-x: auto; }
+.limits { margin: 0; padding-left: 1.1rem; }
+.limits li { margin-bottom: .4rem; }
+
 .team { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
-.people { list-style: none; padding: 0; margin: 0; }
-.people li { padding: .55rem 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.people li span { color: var(--muted); font-size: .9375rem; }
-.links { list-style: none; padding: 0; margin: 0; }
-.links li { padding: .55rem 0; border-bottom: 1px solid var(--rule); }
-.links li span { display: block; color: var(--muted); font-size: .9375rem; }
-
+.people, .links { list-style: none; padding: 0; margin: 0; }
+.people li, .links li { padding: .55rem 0; border-bottom: 1px solid var(--rule); }
+.people li { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.people li span, .links li span { color: var(--muted); font-size: .9375rem; }
+.links li span { display: block; }
 footer { border-top: 1px solid var(--rule); padding: 2rem 0 3rem; font-size: .875rem; color: var(--muted); }
 footer p { margin: 0 0 .5rem; max-width: 46em; }
+.notice { padding: 1rem; color: var(--muted); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
-.notice { padding: 1rem 0; color: var(--muted); }
-
-@media (max-width: 960px) {
-  .hero { grid-template-columns: 1fr; gap: 2rem; }
-  .steps, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .split, .team, .conc, .gallery { grid-template-columns: 1fr; gap: 2rem; }
+@media (max-width: 1100px) {
+  .mapgrid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .intro, .spatial, .split, .team, .figs { grid-template-columns: 1fr; gap: 2rem; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
-  .wrap { padding: 0 1.1rem; }
-  .map-foot { grid-template-columns: 1fr; }
-  .steps, .stats { grid-template-columns: 1fr; }
+  .wrap, .wrap-wide { padding: 0 1rem; }
   section { padding: 3rem 0; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .cell { transition: fill .35s ease; }
+  #lmap { height: 420px; }
+  .steps { grid-template-columns: 1fr; }
+  .vs .row { grid-template-columns: 5rem minmax(0, 1fr) 3rem; }
 }
 </style>
 </head>
 <body>
 <div class="band">
-<div class="wrap">
-  <header class="top">
-    <span>AI@UGA and the Warnell School of Forestry and Natural Resources, University of Georgia</span>
-    <nav>
-      <a href="https://github.com/AI-UGA/fallen-tree-detection">Code</a>
-      <a href="#team">Team</a>
-      <button type="button" class="theme-btn" id="theme-toggle">Dark mode</button>
-    </nav>
-  </header>
+  <div class="wrap-wide">
+    <header class="top">
+      <span>AI@UGA and the Warnell School of Forestry and Natural Resources, University of Georgia</span>
+      <nav>
+        <a href="#spatial">Spatial analysis</a>
+        <a href="#methods">Methods</a>
+        <a href="#data">Data</a>
+        <a href="https://github.com/AI-UGA/fallen-tree-detection">Code</a>
+        <button type="button" class="theme-btn" id="theme-toggle">Dark mode</button>
+      </nav>
+    </header>
 
-    <div class="hero">
+    <div class="intro">
       <div>
-        <h1 id="headline">Fallen wood after Hurricane Helene, measured from the air</h1>
-        <p class="lead" id="lead">We flew a drone over a windthrow site in the Georgia Coastal Plain and used instance segmentation to find, measure and classify the downed wood. The map shows how much lies on the ground in each square of the site.</p>
-        <div class="kpis" id="kpis"></div>
-        <dl class="facts" id="facts"></dl>
+        <h1>Fallen wood after Hurricane Helene, measured from the air</h1>
+        <p class="lead">A drone survey of a windthrow site in the Georgia Coastal Plain, with every fallen piece found, measured and mapped. Click any square to see what lies on the ground there.</p>
       </div>
-
-      <figure class="map-block" style="margin:0">
-        <div class="map-head">
-          <p id="map-title">Wood volume per hectare</p>
-          <div class="metric" role="group" aria-label="Map measure">
-            <button type="button" data-metric="vol" aria-pressed="true">All wood</button>
-            <button type="button" data-metric="full" aria-pressed="false">Full stems</button>
-            <button type="button" data-metric="frag" aria-pressed="false">Fragments</button>
-            <button type="button" data-metric="count" aria-pressed="false">Pieces</button>
-          </div>
-        </div>
-        <div class="map" id="map"><p class="notice" id="map-notice">Loading site data.</p></div>
-        <div class="map-foot">
-          <div>
-            <div class="legend" id="legend"></div>
-            <div class="legend-caption" id="legend-caption"></div>
-          </div>
-          <div class="readout" id="readout" aria-live="polite"></div>
-        </div>
-      </figure>
+      <div class="kpis" id="kpis" aria-label="Site-wide results"></div>
     </div>
-</div>
+
+    <div class="mapgrid">
+      <div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Map layer" id="layers">
+            <button type="button" data-layer="vol" aria-pressed="true">Wood volume</button>
+            <button type="button" data-layer="pieces" aria-pressed="false">Piece density</button>
+            <button type="button" data-layer="stem" aria-pressed="false">Full stem share</button>
+            <button type="button" data-layer="hot" aria-pressed="false">Hot spots (Gi*)</button>
+          </div>
+          <label class="ctl"><input type="checkbox" id="top10" checked> Densest 10% outline</label>
+          <label class="ctl" for="opacity">Opacity <input type="range" id="opacity" min="0.2" max="1" step="0.05" value="0.92"></label>
+          <button type="button" class="btn" id="reset">Reset view</button>
+        </div>
+        <div id="lmap" tabindex="0" role="application" aria-label="Map of 300 quadrants. Use the arrow keys to move between quadrants and Enter to open details."><p class="notice" id="map-notice">Loading the map.</p></div>
+        <p class="mapnote">Each square is one 127 m (1.6 ha) quadrant on an anonymized grid. No coordinates, no basemap: the site is private land.</p>
+      </div>
+      <aside class="panel" aria-live="polite">
+        <div class="legend" id="legend"></div>
+        <h3 id="q-title">Pick a quadrant</h3>
+        <p class="sub" id="q-sub">Click a square on the map, or focus the map and use the arrow keys.</p>
+        <dl class="attrs" id="q-attrs"></dl>
+        <div class="phist" id="q-hist"></div>
+        <div class="totals">
+          <h3>Whole site</h3>
+          <dl class="attrs" id="site-totals"></dl>
+        </div>
+      </aside>
+    </div>
+  </div>
 </div>
 
 <div class="wrap">
   <main>
-    <section aria-labelledby="how">
-      <h2 id="how">How it works</h2>
-      <p class="section-lead">From drone photos to a table of every fallen piece, in four steps.</p>
+    <section aria-labelledby="spatial" id="spatial-section">
+      <h2 id="spatial">Spatial analysis: is the clustering real?</h2>
+      <p class="section-lead">Wood volume per hectare was tested for spatial autocorrelation across the 300 quadrants, using queen contiguity (neighbors share an edge or corner), row-standardized weights and 999 permutations.</p>
+      <div class="spatial">
+        <div>
+          <p class="bigstat"><b id="moran">0.378</b><span id="moran-sub">Global Moran's I, pseudo p = 0.001</span></p>
+          <p>High-volume quadrants sit next to other high-volume quadrants far more than chance would produce.</p>
+          <div class="vs" id="vs" aria-label="Hot spots: share of area against share of wood"></div>
+          <div class="interp">
+            <h3>What it means for land managers</h3>
+            <p id="interp"></p>
+          </div>
+        </div>
+        <figure class="conc" style="margin:0">
+          <div id="conc-chart"></div>
+          <figcaption><b>Half of all wood sits on 13% of the area.</b> Quadrants ranked from densest to sparsest; the dashed line is what an even spread would look like.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section aria-labelledby="methods" id="methods-section">
+      <h2 id="methods">Methods as a GIS workflow</h2>
+      <p class="section-lead">From a raster to vector features to statistics on a grid. Each piece is georeferenced by its centroid, and lengths are measured in projected meters (UTM zone 17N).</p>
       <ol class="steps">
-        <li><img src="assets/img/step1_image.jpg" alt="Drone image of a patch of storm-damaged forest with fallen trunks on the ground" loading="lazy" onerror="this.remove()"><h3>Fly and tile</h3><p id="step-fly">A drone photographs the site after the storm. The photos are stitched into one map and cut into squares.</p></li>
-        <li><img src="assets/img/step2_detect.jpg" alt="The same patch with every detected piece of wood outlined" loading="lazy" onerror="this.remove()"><h3>Detect</h3><p>A YOLOv8 segmentation model, trained on 15,809 hand-drawn outlines, outlines each piece of fallen wood.</p></li>
-        <li><img src="assets/img/step3_measure.jpg" alt="One fallen trunk with its outline and centreline, labelled with length, width and volume" loading="lazy" onerror="this.remove()"><h3>Measure</h3><p>A centreline is drawn through each outline and the width is measured along it. Volume is the sum of short tapered sections along the piece.</p></li>
-        <li><img src="assets/img/step4_classify.jpg" alt="The patch with full stems in green, fragments in orange and set-aside pieces in grey" loading="lazy" onerror="this.remove()"><h3>Classify</h3><p>Long, slender pieces are full stems; the rest are fragments. Pieces cut off by a square's edge, or too small to measure, are set aside.</p></li>
+        <li><img src="assets/img/step1_raster.webp" width="800" height="800" alt="Drone orthomosaic patch with fallen trunks on the ground" loading="lazy"><h3>Orthomosaic raster</h3><p>0.0508 m pixels, cut into 76 tiles covering 478.7 ha.</p></li>
+        <li><img src="assets/img/step2_masks.webp" width="800" height="800" alt="The same patch with every detected piece outlined" loading="lazy"><h3>Instance masks</h3><p>YOLOv8s-seg, trained on 15,809 hand-drawn outlines, outlines each piece.</p></li>
+        <li><img src="assets/img/step3_features.webp" width="800" height="800" alt="Pieces drawn as vector features coloured by class" loading="lazy"><h3>Vector features</h3><p>Each piece gets length, width, volume and class. A full stem is 6.78 m or longer, and passes the width and elongation rules.</p></li>
+        <li><img src="assets/img/step4_zonal.webp" width="800" height="800" alt="A block of quadrants shaded by wood volume per hectare" loading="lazy"><h3>Zonal statistics</h3><p>Pieces and volume are summed per 127 m (1.6 ha) quadrant.</p></li>
+        <li><img src="assets/img/step5_hotspots.webp" width="800" height="727" alt="Quadrant grid shaded by hot and cold spot class" loading="lazy"><h3>Spatial statistics</h3><p>Global Moran's I and Getis-Ord Gi* hot spots on the quadrant grid.</p></li>
       </ol>
-      <figure class="wide">
-        <img src="assets/img/fig_workflow.png" alt="Workflow diagram from drone survey to inventory table" loading="lazy" onerror="this.closest('figure').remove()">
-        <figcaption>The full workflow.</figcaption>
-      </figure>
+      <p class="note">Maps use 127 m (1.6 ha) quadrants; the manuscript also reports per-tile (6.45 ha) summaries.</p>
     </section>
 
     <section aria-labelledby="comp">
       <div class="split">
         <div>
           <h2 id="comp">A quarter of the pieces, most of the wood</h2>
-          <p class="section-lead" id="comp-lead">Full stems are the long, slender pieces. There are few of them, but they hold most of the wood.</p>
-          <div class="key"><span><i style="background:var(--stem)"></i>Full stems</span><span><i style="background:var(--frag)"></i>Fragments</span></div>
+          <p class="section-lead" id="comp-lead">Full stems are few, but they hold most of the volume.</p>
+          <div class="key"><span><i style="background:#1d9e75"></i>Full stems</span><span><i style="background:#ef9f27"></i>Fragments</span></div>
         </div>
         <div id="shares"></div>
       </div>
     </section>
 
-    <section aria-labelledby="len">
-      <h2 id="len">Piece length</h2>
-      <p class="section-lead" id="len-lead">How many pieces fall in each one-metre length range. The dashed line is the minimum length for a full stem.</p>
-      <div class="hist" id="hist"></div>
-    </section>
-
-    <section aria-labelledby="figs" id="figs-section">
-      <h2 id="figs">Figures from the paper</h2>
-      <p class="section-lead">Detection examples and the main results.</p>
-      <div class="gallery">
-        <figure><img src="assets/img/fig_gallery.jpg" alt="Examples of detected fallen wood on drone imagery" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Detection examples.</figcaption></figure>
-        <figure><img src="assets/img/fig_density.png" alt="Map of wood volume density across the site on an anonymized grid" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Volume density across the site.</figcaption></figure>
-        <figure><img src="assets/img/fig_sizes.png" alt="Size distributions" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Size distributions.</figcaption></figure>
-        <figure><img src="assets/img/fig_volume.png" alt="Inventory volume" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>Inventory volume.</figcaption></figure>
+    <section aria-labelledby="results">
+      <h2 id="results">Results from the paper</h2>
+      <p class="section-lead">Figures from the manuscript. Captions follow its wording; the bold line is the takeaway.</p>
+      <div class="figs">
+        <figure><img src="assets/img/fig_site.webp" width="1600" height="1625" alt="Layout of the 76 orthomosaic tiles, with six clipped tiles at the edge shaded darker" loading="lazy"><figcaption><b>76 tiles cover 478.7 ha.</b> Layout of the 76 orthomosaic tiles, covering 478.7 ha of imagery within a 655.7 ha bounding box. The six darker tiles are clipped at the edge.</figcaption></figure>
+        <figure><img src="assets/img/fig_density.png" width="2000" height="919" alt="Two quadrant maps: pieces per hectare and wood volume per hectare" loading="lazy"><figcaption><b>Wood clusters in a few quadrants.</b> Pieces per hectare and wood volume per hectare in each 127 m (1.6 ha) quadrant, in quantile classes. The manuscript's Figure 7 shows the same data per tile.</figcaption></figure>
+        <figure class="full"><img src="assets/img/fig_sizes.webp" width="1600" height="521" alt="Length histogram, width histogram and a length against width scatter by class" loading="lazy"><figcaption><b>Most pieces are shorter than the 6.78 m stem cut.</b> Length histogram with the stem threshold marked, width histogram with the debris floor marked, and a length against width scatter coloured by class. Log axes.</figcaption></figure>
+        <figure><img src="assets/img/fig_volume.webp" width="1600" height="979" alt="Histogram of estimated volume per piece for full stems and fragments" loading="lazy"><figcaption><b>Full stems carry the large volumes.</b> Volume distribution histogram, full stems and fragments as separate series. Log x axis given the skew.</figcaption></figure>
+        <figure><img src="assets/img/fig_gallery.webp" width="1600" height="854" alt="Eight example pieces with outlines, centerlines and measured lengths" loading="lazy"><figcaption><b>Each piece is measured along its centerline.</b> Example gallery, four masks per class, each with its extracted centerline overlaid and its measured length labelled, including one borderline case per class (asterisk).</figcaption></figure>
       </div>
     </section>
 
-    <section aria-labelledby="nums">
-      <h2 id="nums">By the numbers</h2>
-      <p class="section-lead">Every piece is measured on its own. “Typical” means the median.</p>
-      <div class="stats" id="stats"></div>
-      <div class="conc">
-        <div>
-          <h3 id="conc-title">Wood is concentrated</h3>
-          <p id="conc-lead"></p>
-        </div>
-        <div id="conc-chart"></div>
+    <section aria-labelledby="data" id="data-section">
+      <h2 id="data">Data and reproducibility</h2>
+      <p class="section-lead">The quadrant table behind the map. Grid row and column only: nothing in these files can locate the site.</p>
+      <div class="dl">
+        <a href="assets/data/quadrants.csv" download>Quadrant table (CSV)</a>
+        <a href="assets/data/quadrants.geojson" download>Quadrant grid (GeoJSON, grid units)</a>
+        <a href="https://github.com/AI-UGA/fallen-tree-detection">Code on GitHub</a>
       </div>
+      <div class="tablewrap">
+        <table class="dict">
+          <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>id, row, col</code></td><td>Quadrant label and grid position. Row 0 is the north edge. One grid unit is one 127 m quadrant.</td></tr>
+            <tr><td><code>area_ha</code></td><td>Imaged area of the quadrant. Edge quadrants are clipped and smaller than 1.6 ha.</td></tr>
+            <tr><td><code>pieces, full_stems, fragments</code></td><td>Counted pieces by class.</td></tr>
+            <tr><td><code>volume_m3, volume_full_m3, volume_frag_m3</code></td><td>Estimated wood volume, total and by class.</td></tr>
+            <tr><td><code>vol_ha, pieces_ha</code></td><td>Volume and pieces per hectare of imaged area.</td></tr>
+            <tr><td><code>stem_share</code></td><td>Percent of the quadrant's volume in full stems. Empty where there is no wood.</td></tr>
+            <tr><td><code>gi_class, gi_z, gi_p</code></td><td>Getis-Ord Gi* class (hot or cold at 90, 95 or 99% confidence, or ns), z-score and two-sided pseudo p-value.</td></tr>
+            <tr><td><code>rank, densest10</code></td><td>Rank by volume per hectare (1 is densest) and whether the quadrant is in the densest 10% of area.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 style="margin-top:2rem">Limitations</h3>
+      <ul class="limits">
+        <li>Volumes are image-based estimates and are not yet field-validated.</li>
+        <li>Small pieces are under-detected, so counts are conservative.</li>
+        <li>Results depend on the 127 m quadrant size; the manuscript also reports per-tile summaries.</li>
+      </ul>
     </section>
 
     <section aria-labelledby="team" id="team-section">
@@ -339,6 +365,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
           <ul class="links">
             <li><a href="https://github.com/AI-UGA/fallen-tree-detection">Source code</a><span>Pipeline, classification rules and evaluation, MIT licence</span></li>
             <li><a href="https://github.com/AI-UGA/fallen-tree-detection/blob/main/docs/NUMBERS.md">Results in detail</a><span>Every reported number, with how it is computed</span></li>
+            <li><a href="https://github.com/AI-UGA/fallen-tree-detection/blob/main/docs/NUMBERS_spatial.md">Spatial statistics</a><span>Moran's I, Gi* hot spots, method and caveats</span></li>
             <li>Paper<span>In preparation</span></li>
           </ul>
         </div>
@@ -347,446 +374,310 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
   </main>
 
   <footer>
-    <p>Volumes are image-based estimates. Counts are conservative, since small pieces are the hardest to detect from the air.</p>
+    <p>Volumes are image-based estimates and are not yet field-validated. Counts are conservative, since small pieces are the hardest to detect from the air.</p>
     <p>The site is privately owned. It is shown on an anonymized grid, and the imagery is not published.</p>
   </footer>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 (function () {
   "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (v, d) { return Number(v).toLocaleString("en-US", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); };
 
-  var METRICS = {
-    vol:   { title: "Wood volume per hectare",        unit: "m³/ha",     dp: 1, value: function (c) { return (c.v_full + c.v_frag) / c.area_ha; } },
-    full:  { title: "Full stem volume per hectare",   unit: "m³/ha",     dp: 1, value: function (c) { return c.v_full / c.area_ha; } },
-    frag:  { title: "Fragment volume per hectare",    unit: "m³/ha",     dp: 1, value: function (c) { return c.v_frag / c.area_ha; } },
-    count: { title: "Pieces per hectare",             unit: "pieces/ha", dp: 0, value: function (c) { return (c.n_full + c.n_frag) / c.area_ha; } }
+  // theme
+  var root = document.documentElement;
+  function setTheme(t) {
+    root.setAttribute("data-theme", t);
+    $("theme-toggle").textContent = t === "dark" ? "Light mode" : "Dark mode";
+    try { localStorage.setItem("theme", t); } catch (e) {}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem("theme"); } catch (e) {}
+  setTheme(saved || (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  $("theme-toggle").addEventListener("click", function () { setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"); });
+
+  // colour-blind-safe ramps (ColorBrewer)
+  var RAMPS = {
+    vol: ["#ffffe5", "#d9f0a3", "#addd8e", "#78c679", "#31a354", "#006837"],
+    pieces: ["#f6eff7", "#d0d1e6", "#a6bddb", "#67a9cf", "#1c9099", "#016c59"],
+    stem: ["#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571"]
   };
-  var QUAD_NAMES = { "00": "upper left", "01": "upper right", "10": "lower left", "11": "lower right" };
-  var NS = "http://www.w3.org/2000/svg";
-  var CELL = 10;
+  var HOT = {
+    hot99: ["#b2182b", "Hot spot, 99% confidence"], hot95: ["#ef8a62", "Hot spot, 95%"], hot90: ["#fddbc7", "Hot spot, 90%"],
+    ns: ["#e8e8e4", "Not significant"],
+    cold90: ["#d1e5f0", "Cold spot, 90%"], cold95: ["#67a9cf", "Cold spot, 95%"], cold99: ["#2166ac", "Cold spot, 99% confidence"]
+  };
+  var NOWOOD = "#cfd3cf";
 
-  var data = null, metric = "vol", selected = -1, rects = [], byPos = {};
+  var LAYERS = {
+    vol: { title: "Wood volume (m³/ha)", key: "vol_ha", unit: "m³/ha", d: 1,
+           method: "Quantile classes: the quadrants with wood are split into five groups of equal size. Quadrants with no wood are shown separately." },
+    pieces: { title: "Piece density (pieces/ha)", key: "pieces_ha", unit: "pieces/ha", d: 1,
+           method: "Quantile classes, as for wood volume." },
+    stem: { title: "Full stem share of volume (%)", key: "stem_share", unit: "%", d: 0,
+           method: "Equal 20-point steps. Brown: mostly fragments. Teal: mostly full stems." },
+    hot: { title: "Getis-Ord Gi* hot spots", key: "vol_ha", unit: "m³/ha", d: 1,
+           method: "Gi* on wood volume per hectare, queen contiguity, 999 permutations, two-sided pseudo p-values." }
+  };
 
-  function $(id) { return document.getElementById(id); }
-  function fmt(x, dp) {
-    return Number(x).toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
-  }
-  function pct(a, b) { return b > 0 ? (100 * a / b) : 0; }
+  var state = { layer: "vol", opacity: 0.92, sel: null };
+  var data, site, cells, byRC = {}, rects = {}, map, top10Group;
 
-  function hexToRgb(h) {
-    h = h.trim().replace("#", "");
-    if (h.length === 3) h = h.replace(/(.)/g, "$1$1");
-    var n = parseInt(h, 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  }
-  function ramp() {
-    // Same values as --ramp-0..6 on .band; kept here so the map never depends on CSS support.
-    return ["#43513f", "#6c6638", "#96712c", "#c47f23", "#e89b2c", "#f7c158", "#ffeaa8"].map(hexToRgb);
-  }
-  function colourAt(stops, t) {
-    t = Math.max(0, Math.min(1, t));
-    var x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
-    var a = stops[i], b = stops[i + 1];
-    return "rgb(" + [0, 1, 2].map(function (k) { return Math.round(a[k] + (b[k] - a[k]) * f); }).join(",") + ")";
-  }
-  function quantile(sorted, q) {
-    if (!sorted.length) return 0;
-    var pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
-    return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+  function classOf(layer, c) {
+    var L = LAYERS[layer], v = c[L.key];
+    if (layer === "hot") return HOT[c.gi_class][0];
+    if (layer === "stem") {
+      if (v === null) return NOWOOD;
+      return RAMPS.stem[Math.min(4, Math.floor(v / 20))];
+    }
+    var b = data.summary.breaks[L.key];
+    if (v === 0) return RAMPS[layer][0];
+    for (var i = 1; i < b.length; i++) if (v <= b[i]) return RAMPS[layer][i];
+    return RAMPS[layer][RAMPS[layer].length - 1];
   }
 
-  function fillFacts(s) {
-    $("headline").textContent = fmt(s.pieces, 0) + " pieces of fallen wood, measured from the air";
-    $("lead").textContent =
-      "After Hurricane Helene, a drone surveyed " + fmt(s.imaged_ha, 0) +
-      " hectares of damaged forest in the Georgia Coastal Plain. A segmentation model found each piece of fallen wood, and every piece was measured and sorted by shape. The map shows how much wood lies in each square of the site.";
-    var side = Math.round(2500 * s.gsd_m);
-    var k = $("kpis");
-    k.innerHTML = "";
-    [[fmt(s.pieces, 0), "pieces counted"],
-     [fmt(s.volume_m3, 0) + " m³", "of wood on the ground"],
-     [fmt(s.density_m3_ha, 1), "m³ per hectare on average"]].forEach(function (x) {
-      var d = document.createElement("div");
-      var b = document.createElement("b"); b.textContent = x[0];
-      var sp = document.createElement("span"); sp.textContent = x[1];
-      d.appendChild(b); d.appendChild(sp); k.appendChild(d);
+  function legendHTML(layer) {
+    var L = LAYERS[layer], items = [];
+    if (layer === "hot") {
+      Object.keys(HOT).forEach(function (k) { items.push([HOT[k][0], HOT[k][1]]); });
+    } else if (layer === "stem") {
+      ["0 to 20", "20 to 40", "40 to 60", "60 to 80", "80 to 100"].forEach(function (t, i) { items.push([RAMPS.stem[i], t + "%"]); });
+      items.push([NOWOOD, "No wood"]);
+    } else {
+      var b = data.summary.breaks[L.key];
+      items.push([RAMPS[layer][0], "No wood (0)"]);
+      for (var i = 1; i < b.length; i++) items.push([RAMPS[layer][i], (i === 1 ? "Above 0" : fmt(b[i - 1], 1)) + " to " + fmt(b[i], 1)]);
+    }
+    var lis = items.map(function (it) { return '<li><i style="background:' + it[0] + '"></i>' + it[1] + "</li>"; }).join("");
+    var top = $("top10").checked ? '<li><i style="background:transparent;border:2.5px solid #111"></i>Densest 10% of area</li>' : "";
+    return '<div class="ttl">' + L.title + "</div><ul>" + lis + top + '</ul><p class="method">' + L.method + "</p>";
+  }
+
+  function hotLabel(k) { return HOT[k][1].replace(" confidence", ""); }
+
+  function popupHTML(c) {
+    var split = c.volume_m3 > 0 ? fmt(c.stem_share, 0) + "% stems, " + fmt(100 - c.stem_share, 0) + "% fragments" : "no wood";
+    return "<h4>Quadrant " + c.id + "</h4><dl>" +
+      "<dt>Wood volume</dt><dd>" + fmt(c.vol_ha, 1) + " m³/ha</dd>" +
+      "<dt>Pieces</dt><dd>" + fmt(c.pieces) + " (" + fmt(c.pieces_ha, 1) + "/ha)</dd>" +
+      "<dt>Stems / fragments</dt><dd>" + fmt(c.full_stems) + " / " + fmt(c.fragments) + "</dd>" +
+      "<dt>Volume split</dt><dd>" + split + "</dd>" +
+      "<dt>Hot spot class</dt><dd>" + hotLabel(c.gi_class) + "</dd>" +
+      "<dt>Rank by volume</dt><dd>" + c.rank + " of " + cells.length + "</dd></dl>";
+  }
+
+  function histogramSVG(key, value, unit) {
+    var vals = cells.map(function (c) { return c[key]; }).filter(function (v) { return v !== null; });
+    var max = Math.max.apply(null, vals), n = 24, bins = new Array(n).fill(0);
+    vals.forEach(function (v) { bins[Math.min(n - 1, Math.floor(v / max * n))]++; });
+    var W = 320, H = 96, pad = 18, bw = (W - 8) / n, top = Math.max.apply(null, bins);
+    var bars = bins.map(function (b, i) {
+      var h = (H - pad - 6) * b / top;
+      return '<rect x="' + (4 + i * bw).toFixed(1) + '" y="' + (H - pad - h).toFixed(1) + '" width="' + (bw - 1.5).toFixed(1) + '" height="' + h.toFixed(1) + '" fill="currentColor" opacity=".35"/>';
+    }).join("");
+    var mark = "";
+    if (value !== null && value !== undefined) {
+      var x = 4 + Math.min(1, value / max) * (W - 8);
+      mark = '<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="4" y2="' + (H - pad) + '" stroke="currentColor" stroke-width="2"/>';
+    }
+    return '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Where this quadrant falls among all ' + vals.length + ' quadrants">' + bars + mark +
+      '<text x="4" y="' + (H - 4) + '">0</text><text x="' + (W - 4) + '" y="' + (H - 4) + '" text-anchor="end">' + fmt(max, 0) + " " + unit + "</text></svg>";
+  }
+
+  function showQuadrant(c) {
+    var L = LAYERS[state.layer];
+    $("q-title").textContent = "Quadrant " + c.id;
+    $("q-sub").textContent = "Rank " + c.rank + " of " + cells.length + " by wood volume per hectare.";
+    $("q-attrs").innerHTML =
+      "<dt>Wood volume</dt><dd>" + fmt(c.vol_ha, 1) + " m³/ha (" + fmt(c.volume_m3, 1) + " m³)</dd>" +
+      "<dt>Pieces</dt><dd>" + fmt(c.pieces) + " (" + fmt(c.pieces_ha, 1) + "/ha)</dd>" +
+      "<dt>Full stems</dt><dd>" + fmt(c.full_stems) + (c.volume_m3 > 0 ? ", " + fmt(c.stem_share, 0) + "% of volume" : "") + "</dd>" +
+      "<dt>Fragments</dt><dd>" + fmt(c.fragments) + "</dd>" +
+      "<dt>Hot spot class</dt><dd>" + hotLabel(c.gi_class) + "</dd>" +
+      "<dt>Imaged area</dt><dd>" + fmt(c.area_ha, 2) + " ha</dd>";
+    var key = state.layer === "hot" ? "vol_ha" : L.key;
+    $("q-hist").innerHTML = histogramSVG(key, c[key], L.unit);
+  }
+
+  function select(c, openPopup) {
+    if (state.sel) rects[state.sel.id].setStyle({ weight: 0.6, color: "#ffffff" });
+    state.sel = c;
+    var r = rects[c.id];
+    r.setStyle({ weight: 3, color: "#111" });
+    r.bringToFront();
+    if (top10Group && map.hasLayer(top10Group)) top10Group.eachLayer(function (l) { l.bringToFront(); });
+    showQuadrant(c);
+    if (openPopup) r.openPopup();
+  }
+
+  function restyle() {
+    cells.forEach(function (c) {
+      rects[c.id].setStyle({ fillColor: classOf(state.layer, c), fillOpacity: state.opacity });
     });
-    var rows = [
-      ["Full stems", fmt(s.full.n, 0)],
-      ["Fragments", fmt(s.frag.n, 0)],
-      ["Area surveyed", fmt(s.imaged_ha, 1) + " ha"],
-      ["Image resolution", fmt(s.gsd_m * 100, 1) + " cm per pixel"]
-    ];
-    var dl = $("facts");
-    dl.innerHTML = "";
-    rows.forEach(function (r) {
-      var dt = document.createElement("dt"); dt.textContent = r[0];
-      var dd = document.createElement("dd"); dd.textContent = r[1];
-      dl.appendChild(dt); dl.appendChild(dd);
-    });
-    $("step-fly").textContent = "A drone photographs the site after the storm at about " + fmt(s.gsd_m * 100, 0) + " cm per pixel. The photos are stitched into one map and cut into squares " + side + " m on a side.";
-    $("len-lead").textContent = "How many pieces fall in each one-metre length range. The dashed line is the " + fmt(s.full_stem_min_length_m, 2) + " m minimum length for a full stem.";
+    $("legend").innerHTML = legendHTML(state.layer);
+    if (state.sel) showQuadrant(state.sel);
+    else $("q-hist").innerHTML = histogramSVG(state.layer === "hot" ? "vol_ha" : LAYERS[state.layer].key, null, LAYERS[state.layer].unit);
   }
+
+  // scale bar and north arrow
+  var Scale = L.Control.extend({
+    options: { position: "bottomleft" },
+    onAdd: function () { this._d = L.DomUtil.create("div", "scalebar"); return this._d; },
+    update: function () {
+      var a = map.latLngToContainerPoint([0, 0]), b = map.latLngToContainerPoint([0, 1]);
+      var pxPerM = (b.x - a.x) / data.summary.quad_side_m;
+      var opts = [50, 100, 200, 250, 500, 1000], m = opts[0];
+      opts.forEach(function (o) { if (o * pxPerM <= 140) m = o; });
+      this._d.innerHTML = (m >= 1000 ? m / 1000 + " km" : m + " m") + '<i style="width:' + (m * pxPerM).toFixed(0) + 'px"></i>';
+    }
+  });
+  var North = L.Control.extend({
+    options: { position: "topright" },
+    onAdd: function () {
+      var d = L.DomUtil.create("div", "north");
+      d.innerHTML = '<svg width="18" height="26" viewBox="0 0 18 26" aria-hidden="true"><path d="M9 1 L16 16 L9 12 L2 16 Z" fill="#1c2b24"/></svg><div>N</div>';
+      d.setAttribute("aria-label", "North is up");
+      return d;
+    }
+  });
 
   function buildMap() {
-    var cells = data.cells;
-    var maxR = 0, maxC = 0, minR = Infinity, minC = Infinity;
+    $("map-notice").remove();
+    var S = data.summary;
+    var bounds = L.latLngBounds([[-S.nrow, 0], [0, S.ncol]]);
+    map = L.map("lmap", { crs: L.CRS.Simple, keyboard: false, attributionControl: false, zoomSnap: 0.25,
+                          minZoom: 2, maxZoom: 7, maxBounds: bounds.pad(0.25), maxBoundsViscosity: 0.8 });
+    map.fitBounds(bounds, { padding: [10, 10] });
+    var homeZoom = map.getZoom();
+    map.setMinZoom(homeZoom - 0.5);
     cells.forEach(function (c) {
-      maxR = Math.max(maxR, c.row); maxC = Math.max(maxC, c.col);
-      minR = Math.min(minR, c.row); minC = Math.min(minC, c.col);
+      var r = L.rectangle([[-c.row - 1, c.col], [-c.row, c.col + 1]], {
+        weight: 0.6, color: "#ffffff", fillOpacity: state.opacity, fillColor: classOf("vol", c)
+      }).addTo(map);
+      r.bindPopup(function () { return popupHTML(c); }, { maxWidth: 280 });
+      r.on("mouseover", function () { if (state.sel !== c) r.setStyle({ weight: 2.2, color: "#1c2b24" }); });
+      r.on("mouseout", function () { if (state.sel !== c) r.setStyle({ weight: 0.6, color: "#ffffff" }); });
+      r.on("click", function () { select(c, false); });
+      rects[c.id] = r;
     });
-    var w = (maxC - minC + 1) * CELL, h = (maxR - minR + 1) * CELL;
-    var svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-    svg.setAttribute("role", "img");
-    svg.setAttribute("tabindex", "0");
-    svg.setAttribute("aria-label", "Grid map of " + cells.length + " squares. Use the arrow keys to move between squares.");
-    rects = [];
-    byPos = {};
-    cells.forEach(function (c, i) {
-      var r = document.createElementNS(NS, "rect");
-      r.setAttribute("x", (c.col - minC) * CELL + 0.6);
-      r.setAttribute("y", (c.row - minR) * CELL + 0.6);
-      r.setAttribute("width", CELL - 1.2);
-      r.setAttribute("height", CELL - 1.2);
-      r.setAttribute("rx", 0.8);
-      r.setAttribute("class", "cell");
-      var t = document.createElementNS(NS, "title");
-      r.appendChild(t);
-      r.addEventListener("mouseenter", function () { select(i); });
-      r.addEventListener("click", function () { select(i); });
-      svg.appendChild(r);
-      rects.push(r);
-      byPos[c.row + "," + c.col] = i;
+    top10Group = L.layerGroup(cells.filter(function (c) { return c.densest10; }).map(function (c) {
+      return L.rectangle([[-c.row - 0.92, c.col + 0.08], [-c.row - 0.08, c.col + 0.92]],
+                         { weight: 2.5, color: "#111", fill: false, interactive: false });
+    })).addTo(map);
+    var scale = new Scale().addTo(map);
+    new North().addTo(map);
+    map.on("zoomend resize", function () { scale.update(); });
+    scale.update();
+    $("reset").addEventListener("click", function () { map.fitBounds(bounds, { padding: [10, 10] }); map.closePopup(); });
+
+    // keyboard navigation between quadrants
+    $("lmap").addEventListener("keydown", function (e) {
+      var d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+      if (d) {
+        e.preventDefault();
+        var c = state.sel || byRC[Object.keys(byRC).sort()[0]], r = c.row, k = c.col;
+        for (var step = 0; step < 25; step++) {
+          r += d[0]; k += d[1];
+          if (r < 0 || k < 0 || r >= S.nrow || k >= S.ncol) break;
+          if (byRC[r + "," + k]) { select(byRC[r + "," + k], false); map.panInside(rects[byRC[r + "," + k].id].getBounds().getCenter()); return; }
+        }
+        if (!state.sel) select(c, false);
+      } else if (e.key === "Enter" && state.sel) {
+        e.preventDefault(); rects[state.sel.id].openPopup();
+      } else if (e.key === "Escape") { map.closePopup(); }
     });
-    svg.addEventListener("keydown", onKey);
-    svg.addEventListener("focus", function () { if (selected < 0) select(densest()); });
-    var holder = $("map");
-    holder.innerHTML = "";
-    holder.appendChild(svg);
+    restyle();
   }
 
-  function densest() {
-    var m = METRICS[metric], best = 0, bv = -1;
-    data.cells.forEach(function (c, i) { var v = m.value(c); if (v > bv) { bv = v; best = i; } });
-    return best;
-  }
-
-  function onKey(e) {
-    var d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
-    if (!d) return;
-    e.preventDefault();
-    if (selected < 0) { select(densest()); return; }
-    var c = data.cells[selected];
-    for (var step = 1; step < 40; step++) {
-      var k = (c.row + d[0] * step) + "," + (c.col + d[1] * step);
-      if (k in byPos) { select(byPos[k]); return; }
-    }
-  }
-
-  function niceBreak(x) {
-    if (x <= 0) return 0;
-    if (x < 10) return Math.round(x * 10) / 10;
-    if (x < 100) return Math.round(x);
-    return Math.round(x / 5) * 5;
-  }
-
-  // Seven classes with about the same number of squares in each, so
-  // neighbouring squares read as clearly different steps.
-  function paint() {
-    var m = METRICS[metric];
-    var vals = data.cells.map(m.value);
-    var sorted = vals.slice().sort(function (a, b) { return a - b; });
-    var stops = ramp(), K = stops.length, breaks = [];
-    for (var k = 1; k < K; k++) breaks.push(niceBreak(quantile(sorted, k / K)));
-    function cls(v) { var c = 0; breaks.forEach(function (b) { if (v > b) c++; }); return c; }
-    function rgb(a) { return "rgb(" + a.join(",") + ")"; }
-    rects.forEach(function (r, i) {
-      r.setAttribute("fill", rgb(stops[cls(vals[i])]));
-      r.firstChild.textContent = label(data.cells[i]) + ": " + fmt(vals[i], m.dp) + " " + m.unit;
-    });
-    $("map-title").textContent = m.title;
-    var lg = $("legend");
-    lg.innerHTML = "";
-    for (var j = 0; j < K; j++) {
-      var cell = document.createElement("div");
-      var sw = document.createElement("i");
-      sw.style.background = rgb(stops[j]);
-      var t = document.createElement("span");
-      t.textContent = j === 0 ? "0" : (j === K - 1 ? fmt(breaks[j - 1], m.dp > 0 && breaks[j - 1] < 10 ? 1 : 0) + "+" : fmt(breaks[j - 1], m.dp > 0 && breaks[j - 1] < 10 ? 1 : 0));
-      cell.appendChild(sw); cell.appendChild(t); lg.appendChild(cell);
-    }
-    $("legend-caption").textContent = m.unit + ". Each colour covers the same number of squares.";
-    renderReadout();
-  }
-
-  function label(c) { return "Tile " + c.tile + ", " + QUAD_NAMES[c.q]; }
-
-  function select(i) {
-    if (selected >= 0 && rects[selected]) rects[selected].classList.remove("sel");
-    selected = i;
-    if (rects[i]) {
-      rects[i].classList.add("sel");
-      rects[i].parentNode.appendChild(rects[i]);
-    }
-    renderReadout();
-  }
-
-  function renderReadout() {
-    var el = $("readout"), s = data.summary;
-    if (selected < 0) {
-      el.innerHTML = "";
-      var p = document.createElement("div");
-      p.innerHTML = "<strong>Site average</strong>";
-      var row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML =
-        "<span><b>" + fmt(s.density_m3_ha, 1) + "</b> m³/ha</span>" +
-        "<span><b>" + fmt(s.pieces_per_ha, 1) + "</b> pieces/ha</span>";
-      var hint = document.createElement("div");
-      hint.className = "row";
-      hint.textContent = "Tap or hover over a square to see its numbers.";
-      el.appendChild(p); el.appendChild(row); el.appendChild(hint);
-      return;
-    }
-    var c = data.cells[selected];
-    var vol = (c.v_full + c.v_frag);
-    el.innerHTML = "";
-    var head = document.createElement("div");
-    var strong = document.createElement("strong");
-    strong.textContent = label(c);
-    head.appendChild(strong);
-    var a = document.createElement("div");
-    a.className = "row";
-    a.innerHTML =
-      "<span><b>" + fmt(vol / c.area_ha, 1) + "</b> m³/ha</span>" +
-      "<span><b>" + fmt(vol, 1) + "</b> m³ in " + fmt(c.area_ha, 2) + " ha</span>";
-    var b = document.createElement("div");
-    b.className = "row";
-    b.innerHTML =
-      "<span><b>" + fmt(c.n_full, 0) + "</b> full stem" + (c.n_full === 1 ? "" : "s") + "</span>" +
-      "<span><b>" + fmt(c.n_frag, 0) + "</b> fragment" + (c.n_frag === 1 ? "" : "s") + "</span>";
-    el.appendChild(head); el.appendChild(a); el.appendChild(b);
-  }
-
-  function renderShares() {
-    var s = data.summary;
-    var n = s.full.n + s.frag.n, v = s.full.v + s.frag.v;
+  function kpis() {
+    var s = site.summary;
     var items = [
-      ["Share of pieces", pct(s.full.n, n), fmt(n, 0) + " pieces"],
-      ["Share of volume", pct(s.full.v, v), fmt(v, 0) + " m³"]
+      [fmt(s.pieces), "pieces of fallen wood"],
+      [fmt(Math.round(s.volume_m3)) + "<small> m³</small>", "of wood in total"],
+      [fmt(s.density_m3_ha, 1) + "<small> m³/ha</small>", "average, " + fmt(s.pieces_per_ha, 1) + " pieces/ha"],
+      [fmt(data.summary.moran_I, 3), "Moran's I: the wood is clustered"]
     ];
-    var host = $("shares");
-    host.innerHTML = "";
-    items.forEach(function (it) {
-      var wrap = document.createElement("div");
-      wrap.className = "share";
-      wrap.innerHTML =
-        '<div class="share-label"><span>' + it[0] + "</span><span>" + it[2] + "</span></div>" +
-        '<div class="share-bar" role="img" aria-label="' + it[0] + ": full stems " + fmt(it[1], 1) + " percent, fragments " + fmt(100 - it[1], 1) + ' percent">' +
-        '<div class="s" style="width:' + it[1] + '%">' + fmt(it[1], 0) + "%</div>" +
-        '<div class="f" style="width:' + (100 - it[1]) + '%">' + fmt(100 - it[1], 0) + "%</div></div>";
-      host.appendChild(wrap);
+    $("kpis").innerHTML = items.map(function (it) { return "<div><b>" + it[0] + "</b><span>" + it[1] + "</span></div>"; }).join("");
+    $("site-totals").innerHTML =
+      "<dt>Imaged area</dt><dd>" + fmt(s.imaged_ha, 1) + " ha</dd>" +
+      "<dt>Quadrants</dt><dd>" + fmt(s.quadrants) + "</dd>" +
+      "<dt>Pieces</dt><dd>" + fmt(s.pieces) + "</dd>" +
+      "<dt>Wood volume</dt><dd>" + fmt(Math.round(s.volume_m3)) + " m³</dd>" +
+      "<dt>Mean density</dt><dd>" + fmt(s.density_m3_ha, 1) + " m³/ha</dd>";
+  }
+
+  function shares() {
+    var s = site.summary, n = s.full.n + s.frag.n, v = s.full.v + s.frag.v;
+    var pn = 100 * s.full.n / n, pv = 100 * s.full.v / v;
+    function bar(label, note, a) {
+      return '<div class="share"><div class="share-label"><span>' + label + "</span><span>" + note + '</span></div><div class="share-bar"><div class="s" style="width:' + a + '%">' + fmt(a, 1) + '%</div><div class="f" style="width:' + (100 - a) + '%">' + fmt(100 - a, 1) + "%</div></div></div>";
+    }
+    $("shares").innerHTML = bar("Pieces", fmt(s.full.n) + " stems, " + fmt(s.frag.n) + " fragments", pn) +
+      bar("Volume", "median length " + fmt(s.full.median_length_m, 1) + " m against " + fmt(s.frag.median_length_m, 1) + " m", pv);
+  }
+
+  function spatial() {
+    var S = data.summary;
+    $("moran").textContent = fmt(S.moran_I, 3);
+    $("moran-sub").textContent = "Global Moran's I, pseudo p = " + fmt(S.moran_p_sim, 3) + " (" + fmt(S.permutations) + " permutations)";
+    var ha = 100 * S.hot_area_share, hv = 100 * S.hot_volume_share;
+    function row(label, val, color) {
+      return '<div class="row"><span>' + label + '</span><div class="bar"><i style="width:' + val + "%;background:" + color + '"></i></div><b>' + fmt(val, 0) + "%</b></div>";
+    }
+    $("vs").innerHTML = "<h3>Gi* hot spots</h3>" + row("Share of area", ha, "#9aa6a0") + row("Share of wood", hv, "#b2182b");
+    $("interp").textContent = "Hot spots cover " + fmt(ha, 0) + "% of the area but hold " + fmt(hv, 0) +
+      "% of the wood. Salvage and fuel reduction that start in the hot spot quadrants reach a large share of the wood with a small share of the travel. Cold spots hold little wood and can wait.";
+
+    // concentration curve
+    var arr = cells.map(function (c) { return [c.area_ha, c.volume_m3]; }).sort(function (a, b) { return b[1] / b[0] - a[1] / a[0]; });
+    var A = arr.reduce(function (s, x) { return s + x[0]; }, 0), V = arr.reduce(function (s, x) { return s + x[1]; }, 0);
+    var pts = [[0, 0]], ca = 0, cv = 0;
+    arr.forEach(function (x) { ca += x[0]; cv += x[1]; pts.push([ca / A, cv / V]); });
+    function interp(xa) { for (var i = 1; i < pts.length; i++) if (pts[i][0] >= xa) { var p = pts[i - 1], q = pts[i]; return p[1] + (q[1] - p[1]) * (xa - p[0]) / (q[0] - p[0]); } return 1; }
+    function inv(yv) { for (var i = 1; i < pts.length; i++) if (pts[i][1] >= yv) { var p = pts[i - 1], q = pts[i]; return p[0] + (q[0] - p[0]) * (yv - p[1]) / (q[1] - p[1]); } return 1; }
+    var W = 560, H = 330, l = 46, r = 14, t = 14, b = 42;
+    var X = function (v) { return l + v * (W - l - r); }, Y = function (v) { return H - b - v * (H - t - b); };
+    var y10 = interp(0.10), x50 = inv(0.5);
+    var o = ['<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Concentration curve: the densest 10% of area holds ' + fmt(100 * y10, 0) + '% of the wood, and half the wood sits on ' + fmt(100 * x50, 0) + '% of the area">'];
+    [0, .25, .5, .75, 1].forEach(function (v) {
+      o.push('<line class="axis" x1="' + X(0) + '" x2="' + X(1) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/>');
+      o.push('<text x="' + (l - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v * 100 + "%</text>");
+      o.push('<text x="' + X(v) + '" y="' + (H - b + 18) + '" text-anchor="middle">' + v * 100 + "%</text>");
     });
-    $("comp-lead").textContent =
-      "Full stems are the long, slender pieces. They are " +
-      fmt(pct(s.full.n, n), 0) + "% of the pieces but hold " + fmt(pct(s.full.v, v), 0) + "% of the wood.";
+    o.push('<text x="' + X(.5) + '" y="' + (H - 4) + '" text-anchor="middle">Share of area, densest quadrants first</text>');
+    o.push('<line class="even" x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(1) + '" y2="' + Y(1) + '"/>');
+    o.push('<polyline class="curve" points="' + pts.map(function (p) { return X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1); }).join(" ") + '"/>');
+    o.push('<circle class="mark" cx="' + X(.1) + '" cy="' + Y(y10) + '" r="5"/><text class="lab" x="' + (X(.1) + 12) + '" y="' + (Y(y10) + 18) + '">Densest 10% of area: ' + fmt(100 * y10, 0) + "% of wood</text>");
+    o.push('<circle class="mark" cx="' + X(x50) + '" cy="' + Y(.5) + '" r="5"/><text class="lab" x="' + (X(x50) + 12) + '" y="' + (Y(.5) - 8) + '">Half of all wood: ' + fmt(100 * x50, 0) + "% of area</text>");
+    o.push("</svg>");
+    $("conc-chart").innerHTML = o.join("");
   }
 
-  function renderHist() {
-    var h = data.length_hist, s = data.summary;
-    var bins = h.full.length, W = 720, H = 260, L = 44, R = 12, T = 12, B = 34;
-    var tot = h.full.map(function (f, i) { return f + h.frag[i]; });
-    var ymax = Math.max.apply(null, tot) || 1;
-    var nice = Math.pow(10, Math.floor(Math.log10(ymax)));
-    var step = ymax / nice > 5 ? nice : nice / 2;
-    var ytop = Math.ceil(ymax / step) * step;
-    var bw = (W - L - R) / bins;
-    var cs = getComputedStyle(document.documentElement);
-    var stem = cs.getPropertyValue("--stem").trim(), frag = cs.getPropertyValue("--frag").trim();
-    function y(v) { return T + (H - T - B) * (1 - v / ytop); }
-    var out = ['<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Histogram of piece length by class">'];
-    for (var g = 0; g <= ytop; g += step) {
-      out.push('<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(g) + '" y2="' + y(g) + '"/>');
-      out.push('<text x="' + (L - 6) + '" y="' + (y(g) + 4) + '" text-anchor="end">' + fmt(g, 0) + "</text>");
-    }
-    for (var i = 0; i < bins; i++) {
-      var x = L + i * bw + 1, fH = y(0) - y(h.frag[i]), sH = y(0) - y(h.full[i]);
-      if (h.frag[i]) out.push('<rect x="' + x + '" width="' + (bw - 2) + '" y="' + (y(0) - fH) + '" height="' + fH + '" fill="' + frag + '"><title>' + i + "–" + (i + 1) + " m: " + fmt(h.frag[i], 0) + " fragments</title></rect>");
-      if (h.full[i]) out.push('<rect x="' + x + '" width="' + (bw - 2) + '" y="' + (y(0) - fH - sH) + '" height="' + sH + '" fill="' + stem + '"><title>' + i + "–" + (i + 1) + " m: " + fmt(h.full[i], 0) + " full stems</title></rect>");
-    }
-    for (var m = 0; m <= h.max_m; m += 5) {
-      var tx = L + (m / h.bin_m) * bw;
-      out.push('<text x="' + tx + '" y="' + (H - B + 16) + '" text-anchor="middle">' + (m === h.max_m ? m + "+" : m) + "</text>");
-    }
-    out.push('<text x="' + (W - R) + '" y="' + (H - 2) + '" text-anchor="end">Length (m)</text>');
-    var cx = L + (s.full_stem_min_length_m / h.bin_m) * bw;
-    out.push('<line class="cut" x1="' + cx + '" x2="' + cx + '" y1="' + T + '" y2="' + y(0) + '"/>');
-    out.push('<text class="cut-label" x="' + (cx + 6) + '" y="' + (T + 12) + '">' + fmt(s.full_stem_min_length_m, 2) + " m</text>");
-    out.push("</svg>");
-    $("hist").innerHTML = out.join("");
-  }
-
-  function renderStats() {
-    var s = data.summary, side = Math.round(2500 * s.gsd_m);
-    var dens = data.cells.map(function (c) { return (c.v_full + c.v_frag) / c.area_ha; }).sort(function (a, b) { return a - b; });
-    var ex = (s.excluded && s.excluded.by_reason) || {};
-    function cls(c) {
-      return [
-        ["Pieces", fmt(c.n, 0)],
-        ["Volume", fmt(c.v, 0) + " m³"],
-        ["Typical length", fmt(c.median_length_m, 1) + " m"],
-        ["1 in 10 longer than", fmt(c.p90_length_m, 1) + " m"],
-        ["Longest", fmt(c.max_length_m, 1) + " m"],
-        ["Typical volume", fmt(c.median_volume_m3, 2) + " m³"]
-      ];
-    }
-    var groups = [
-      ["Detection", [
-        ["Objects detected", fmt(s.detections, 0)],
-        ["Counted", fmt(s.pieces, 0)],
-        ["Set aside", fmt(s.excluded.n, 0)],
-        ["At a tile edge", fmt(ex.tile_edge || 0, 0)],
-        ["Too narrow", fmt(ex.too_narrow || 0, 0)],
-        ["Too short", fmt(ex.too_short || 0, 0)],
-        ["Not elongated", fmt(ex.not_elongated || 0, 0)]
-      ]],
-      ["Full stems", cls(s.full)],
-      ["Fragments", cls(s.frag)],
-      ["Across the site", [
-        ["Area surveyed", fmt(s.imaged_ha, 1) + " ha"],
-        ["Squares", fmt(s.quadrants, 0) + ", " + side + " m each"],
-        ["Pieces per hectare", fmt(s.pieces_per_ha, 1)],
-        ["Average volume", fmt(s.density_m3_ha, 1) + " m³/ha"],
-        ["Typical square", fmt(quantile(dens, 0.5), 1) + " m³/ha"],
-        ["Densest square", fmt(dens[dens.length - 1], 0) + " m³/ha"],
-        ["Image resolution", fmt(s.gsd_m * 100, 1) + " cm"]
-      ]]
-    ];
-    var host = $("stats");
-    host.innerHTML = "";
-    groups.forEach(function (g) {
-      var box = document.createElement("div");
-      var h = document.createElement("h3"); h.textContent = g[0]; box.appendChild(h);
-      var dl = document.createElement("dl");
-      g[1].forEach(function (row) {
-        var d = document.createElement("div");
-        var dt = document.createElement("dt"); dt.textContent = row[0];
-        var dd = document.createElement("dd"); dd.textContent = row[1];
-        d.appendChild(dt); d.appendChild(dd); dl.appendChild(d);
-      });
-      box.appendChild(dl);
-      host.appendChild(box);
-    });
-  }
-
-  function renderConcentration() {
-    var cells = data.cells.slice().sort(function (a, b) {
-      return (b.v_full + b.v_frag) / b.area_ha - (a.v_full + a.v_frag) / a.area_ha;
-    });
-    var A = 0, V = 0;
-    cells.forEach(function (c) { A += c.area_ha; V += c.v_full + c.v_frag; });
-    var pts = [[0, 0]], a = 0, v = 0;
-    cells.forEach(function (c) { a += c.area_ha; v += c.v_full + c.v_frag; pts.push([a / A, v / V]); });
-    function yAt(x) {
-      for (var i = 1; i < pts.length; i++) if (pts[i][0] >= x) {
-        var p = pts[i - 1], q = pts[i], f = (x - p[0]) / ((q[0] - p[0]) || 1);
-        return p[1] + f * (q[1] - p[1]);
-      }
-      return 1;
-    }
-    function xAt(y) {
-      for (var i = 1; i < pts.length; i++) if (pts[i][1] >= y) {
-        var p = pts[i - 1], q = pts[i], f = (y - p[1]) / ((q[1] - p[1]) || 1);
-        return p[0] + f * (q[0] - p[0]);
-      }
-      return 1;
-    }
-    var top10 = yAt(0.10), half = xAt(0.5);
-    $("conc-title").textContent = "The densest tenth of the site holds " + fmt(top10 * 100, 0) + "% of the wood";
-    $("conc-lead").textContent = "Half of the wood sits on just " + fmt(half * 100, 0) +
-      "% of the area. Squares are ranked from densest to sparsest; the dashed line shows a perfectly even spread.";
-    var W = 520, H = 320, L = 42, R = 14, T = 12, B = 40;
-    function X(x) { return L + x * (W - L - R); }
-    function Y(y) { return T + (1 - y) * (H - T - B); }
-    var out = ['<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Cumulative share of wood volume against share of area, densest squares first">'];
-    for (var g = 0; g <= 1.0001; g += 0.25) {
-      out.push('<line class="axis" x1="' + X(0) + '" x2="' + X(1) + '" y1="' + Y(g) + '" y2="' + Y(g) + '"/>');
-      out.push('<text x="' + (L - 6) + '" y="' + (Y(g) + 4) + '" text-anchor="end">' + Math.round(g * 100) + "%</text>");
-      out.push('<text x="' + X(g) + '" y="' + (H - B + 16) + '" text-anchor="middle">' + Math.round(g * 100) + "%</text>");
-    }
-    out.push('<text x="' + X(1) + '" y="' + (H - 4) + '" text-anchor="end">Share of area, densest first</text>');
-    out.push('<line class="even" x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(1) + '" y2="' + Y(1) + '"/>');
-    out.push('<polyline class="curve" points="' + pts.map(function (p) { return X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1); }).join(" ") + '"/>');
-    out.push('<circle class="mark" cx="' + X(0.1) + '" cy="' + Y(top10) + '" r="4.5"/>');
-    out.push('<text x="' + (X(0.1) + 9) + '" y="' + (Y(top10) + 4) + '" style="fill:var(--ink)">' + fmt(top10 * 100, 0) + "% of the wood</text>");
-    out.push("</svg>");
-    $("conc-chart").innerHTML = out.join("");
-  }
-
-  function render() {
-    fillFacts(data.summary);
-    buildMap();
-    paint();
-    renderShares();
-    renderHist();
-    renderStats();
-    renderConcentration();
-  }
-
-  document.querySelectorAll(".metric button").forEach(function (b) {
+  document.querySelectorAll("#layers button").forEach(function (b) {
     b.addEventListener("click", function () {
-      metric = b.getAttribute("data-metric");
-      document.querySelectorAll(".metric button").forEach(function (o) {
-        o.setAttribute("aria-pressed", o === b ? "true" : "false");
-      });
-      if (data) paint();
+      document.querySelectorAll("#layers button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      state.layer = b.dataset.layer;
+      if (map) restyle();
     });
   });
-
-  var btn = $("theme-toggle");
-  function applyTheme(t) {
-    document.documentElement.setAttribute("data-theme", t);
-    btn.textContent = t === "dark" ? "Light mode" : "Dark mode";
-    if (data) { paint(); renderHist(); renderConcentration(); }
-  }
-  var saved = "light";
-  try { saved = localStorage.getItem("theme") || "light"; } catch (e) {}
-  applyTheme(saved);
-  btn.addEventListener("click", function () {
-    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    try { localStorage.setItem("theme", next); } catch (e) {}
-    applyTheme(next);
+  $("top10").addEventListener("change", function () {
+    if (!map) return;
+    if (this.checked) top10Group.addTo(map); else map.removeLayer(top10Group);
+    $("legend").innerHTML = legendHTML(state.layer);
   });
+  $("opacity").addEventListener("input", function () { state.opacity = +this.value; if (map) restyle(); });
 
-  function fail(msg) {
-    var n = $("map-notice");
-    if (n) n.textContent = msg;
-  }
-
-  function start(d) {
-    if (!d || !d.cells || !d.cells.length) {
-      fail("The site data file is empty. Rebuild it with scripts/build_site_data.py.");
-      return;
-    }
-    data = d;
-    render();
-  }
-
-  window.addEventListener("load", function () {
-    var g = document.querySelector(".gallery");
-    if (g && !g.querySelector("figure")) $("figs-section").remove();
-  });
-
-  if (window.SITE_DATA) {
-    start(window.SITE_DATA);
-  } else {
-    fetch("assets/site.json", { cache: "no-cache" })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(start)
-      .catch(function () { fail("Site data is not available yet. Build it with scripts/build_site_data.py and add docs/assets/site.json."); });
-  }
+  Promise.all([fetch("assets/site.json").then(function (r) { return r.json(); }),
+               fetch("assets/data/quadrants.json").then(function (r) { return r.json(); })])
+    .then(function (res) {
+      site = res[0]; data = res[1]; cells = data.cells;
+      cells.forEach(function (c) { byRC[c.row + "," + c.col] = c; });
+      kpis(); shares(); spatial();
+      if (window.L) buildMap(); else $("map-notice").textContent = "The map library could not load. The data are still available below.";
+    })
+    .catch(function () { $("map-notice").textContent = "The site data could not load. If you opened this file directly, serve the docs folder over HTTP."; });
 })();
 </script>
 </body>
