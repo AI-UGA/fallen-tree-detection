@@ -96,3 +96,19 @@ quantile classes (equal numbers of quadrants). Stem share uses fixed
 | Wood volume (m3/ha) | 0, 5.5, 19.1, 30.9, 55.5, 268.8 |
 | Piece density (pieces/ha) | 0, 11.2, 32.9, 55.2, 84.3, 203.4 |
 | Full stem share of volume (%) | 0, 20, 40, 60, 80, 100 |
+
+## Permutation histogram on the website
+
+The "How the test works" chart in `docs/index.html` is a static SVG drawn from
+a separate numpy run, not from esda. Method: `vol_ha` for the 300 quadrants in
+`docs/assets/data/quadrants.json`; queen contiguity built from grid row and
+column (edge or corner neighbors); row-standardized weights; 999 random
+permutations of the values with `numpy.random.default_rng(20261114)`.
+
+| Quantity | Value |
+|---|---|
+| Recomputed Moran's I | 0.378 (0.3779) |
+| Shuffled Moran's I, range | -0.089 to 0.135 |
+| Shuffles at or above the real map | 0 of 999, so pseudo p = 0.001 |
+
+The chart bins the shuffled values in steps of 0.01 from -0.1 to 0.4.

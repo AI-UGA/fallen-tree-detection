@@ -144,6 +144,7 @@ section { padding: 4rem 0; border-top: 1px solid var(--rule); }
 .figs a img { transition: transform .25s ease, box-shadow .25s ease; }
 .figs a:hover img { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
 main > section:first-child { border-top: 0; }
+.quick + .tint { margin-top: 0; }
 h2 { font: 600 1.75rem/1.2 var(--serif); margin: 0 0 1rem; font-variation-settings: "opsz" 36; }
 h3 { font: 600 1.0625rem/1.3 var(--sans); margin: 0 0 .5rem; }
 .section-lead { max-width: 40em; margin: 0 0 2.25rem; color: var(--muted); }
@@ -160,7 +161,7 @@ h3 { font: 600 1.0625rem/1.3 var(--sans); margin: 0 0 .5rem; }
 .interp { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); max-width: 36em; }
 .conc svg { display: block; width: 100%; height: auto; }
 .conc text { fill: var(--muted); font: 400 12px var(--sans); }
-.conc .lab { fill: var(--ink); font-weight: 600; }
+.conc .lab { fill: var(--ink); font-weight: 600; paint-order: stroke; stroke: var(--tint, var(--paper)); stroke-width: 5px; stroke-linejoin: round; }
 .conc .axis { stroke: var(--rule); }
 .conc .even { stroke: var(--muted); stroke-dasharray: 4 4; }
 .conc .curve { stroke: var(--accent); stroke-width: 2.5; fill: none; }
@@ -169,7 +170,8 @@ h3 { font: 600 1.0625rem/1.3 var(--sans); margin: 0 0 .5rem; }
 
 .steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.25rem; }
 .steps li { counter-increment: step; }
-.steps img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 3px; margin-bottom: .85rem; background: var(--rule); }
+.steps img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 3px; margin-bottom: .85rem; background: var(--rule); }
+.steps li:last-child img { object-fit: contain; background: #fff; }
 .steps li::before { content: counter(step); display: block; font: 600 1.4rem/1 var(--serif); margin-bottom: .5rem; color: var(--accent); }
 .steps h3 { margin: 0 0 .3rem; font-size: 1rem; }
 .steps p { margin: 0; font-size: .875rem; color: var(--muted); }
@@ -219,7 +221,52 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
   .mapgrid { grid-template-columns: minmax(0, 1fr); }
   .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+/* 30-second version */
+.quick { padding-top: 3.5rem; }
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.card { border: 1px solid var(--rule); border-radius: 6px; padding: 1.15rem 1.15rem 1.3rem; background: var(--paper); }
+.card .k { display: block; font: 600 .6875rem/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: .7rem; }
+.card .big { display: block; font: 600 1.5rem/1.15 var(--serif); margin-bottom: .55rem; }
+.card p { margin: 0; font-size: .9375rem; color: var(--muted); line-height: 1.5; }
+.quick-note { margin: 1.1rem 0 0; font-size: .8125rem; color: var(--muted); }
+.quick-note a { margin-left: .5rem; font-weight: 500; }
+/* how the test works */
+.howtest { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--rule); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 3rem; align-items: start; }
+.howtest h3 { font: 600 1.375rem/1.25 var(--serif); margin: 0 0 1rem; }
+.steps-list { list-style: none; margin: 0; padding: 0; }
+.steps-list li { padding: .75rem 0; border-bottom: 1px solid var(--rule); font-size: .9375rem; }
+.steps-list li:first-child { padding-top: 0; }
+.steps-list b { display: block; margin-bottom: .2rem; }
+.perm svg { display: block; width: 100%; height: auto; }
+.perm text { fill: var(--muted); font: 400 12px var(--sans); }
+.perm .lab { fill: var(--ink); font-weight: 600; }
+.perm .pbar { fill: var(--muted); opacity: .55; }
+.perm .axis { stroke: var(--rule); stroke-width: 1.5; }
+.perm .real { stroke: #c8102e; stroke-width: 3; }
+.perm .real-lab { fill: #c8102e; font-weight: 600; font-size: 13px; }
+:root[data-theme="dark"] .perm .real { stroke: #ff6b6b; }
+:root[data-theme="dark"] .perm .real-lab { fill: #ff8a8a; }
+.perm figcaption { font-size: .875rem; color: var(--muted); margin-top: .5rem; }
+.perm figcaption b { color: var(--ink); }
+/* map metadata */
+.meta { margin-top: .75rem; font-size: .8125rem; color: var(--muted); }
+.meta summary { cursor: pointer; font-weight: 600; color: var(--ink); width: max-content; }
+.meta summary:hover { color: var(--accent); }
+.meta dl { margin: .75rem 0 0; display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; max-width: 46rem; }
+.meta dt { font-weight: 600; color: var(--ink); }
+.meta dd { margin: 0; }
+@media (max-width: 900px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .cards { grid-template-columns: 1fr; }
+  .meta dl { grid-template-columns: 1fr; gap: .1rem; }
+  .meta dd { margin-bottom: .45rem; }
+  .perm text, .conc text { font-size: 18px; }
+  .perm .real-lab { font-size: 19px; }
+}
 @media (max-width: 860px) {
+  .howtest { grid-template-columns: 1fr; gap: 2rem; }
   .intro, .spatial, .split, .team, .figs { grid-template-columns: 1fr; gap: 2rem; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guides { grid-template-columns: 1fr; }
@@ -277,6 +324,18 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         </div>
         <div id="lmap" tabindex="0" role="application" aria-label="Map of 300 quadrants. Arrow keys move between quadrants, Enter opens details, plus and minus zoom."><p class="notice" id="map-notice">Loading the map.</p></div>
         <p class="mapnote">Each square is one 127 m (1.6 ha) quadrant on an anonymized grid. No coordinates, no basemap: the site is private land.</p>
+        <details class="meta">
+          <summary>Map metadata</summary>
+          <dl>
+            <dt>Imagery</dt><dd>UAV orthomosaic, 0.0508 m pixels, acquired 26 April 2025; 76 tiles, 478.7 ha</dd>
+            <dt>Projection</dt><dd>Measured in UTM zone 17N (meters); shown on an anonymized row and column grid</dd>
+            <dt>Map unit</dt><dd>300 quadrants, 127 m on a side (1.6 ha); clipped edge quadrants use their own area</dd>
+            <dt>Classes</dt><dd>Quantile breaks; quadrants with no wood shown separately</dd>
+            <dt>Hot spots</dt><dd>Getis-Ord Gi*, queen neighbors, 999 permutations, 90 / 95 / 99% confidence</dd>
+            <dt>Detections</dt><dd>YOLOv8s-seg; 20,700 pieces kept after filtering (site_run_v3)</dd>
+            <dt>Downloads</dt><dd><a href="#data-section">Quadrant table and grid</a>, in grid units only</dd>
+          </dl>
+        </details>
         <div class="guides" role="group" aria-label="Guided views of the map">
           <button type="button" data-guide="vol" aria-pressed="false"><span class="q">Where is the most wood?</span><span class="a">The densest 10% of the area, outlined in gold, holds 43% of the wood.</span></button>
           <button type="button" data-guide="stem" aria-pressed="false"><span class="q">What kind of wood?</span><span class="a">Full stems are 24.8% of the pieces but 57.4% of the volume. Teal squares are stem-dominated.</span></button>
@@ -301,6 +360,18 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
 
 <div class="wrap">
   <main>
+    <section aria-labelledby="quick" class="quick">
+      <h2 id="quick">The 30-second version</h2>
+      <p class="section-lead">What we asked, what we did, and why it matters for the people cleaning up after the storm.</p>
+      <ul class="cards">
+        <li class="card"><span class="k">The problem</span><span class="big">Where is the wood?</span><p>After Hurricane Helene, foresters could estimate how much timber was down, but not where it lay across a site.</p></li>
+        <li class="card"><span class="k">What we did</span><span class="big">478.7 ha from the air</span><p>A drone photographed the site. A model outlined every fallen piece, and each one became a measured feature on a map.</p></li>
+        <li class="card"><span class="k">What we found</span><span class="big">20,700 pieces</span><p>Holding 14,401 m³ of wood, and it is clustered: hot spots cover 14% of the land but hold 38% of the wood.</p></li>
+        <li class="card"><span class="k">Why it matters</span><span class="big">Start in the hot spots</span><p>Salvage and fuel crews can begin in a few squares instead of searching the whole site.</p></li>
+      </ul>
+      <p class="quick-note">Volumes are image-based estimates and are not yet field-validated.<a href="#spatial-section">See how we tested the clustering</a></p>
+    </section>
+
     <section aria-labelledby="spatial" id="spatial-section" class="tint">
       <h2 id="spatial">Spatial analysis: is the clustering real?</h2>
       <p class="section-lead">Wood volume per hectare was tested for spatial autocorrelation across the 300 quadrants, using queen contiguity (neighbors share an edge or corner), row-standardized weights and 999 permutations.</p>
@@ -318,6 +389,21 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
         <figure class="conc" style="margin:0">
           <div id="conc-chart"></div>
           <figcaption><b>Half of all wood sits on 13% of the area.</b> Quadrants ranked from densest to sparsest; the dashed line is what an even spread would look like.</figcaption>
+        </figure>
+      </div>
+      <div class="howtest">
+        <div>
+          <h3>How the test works</h3>
+          <ul class="steps-list">
+            <li><b>Neighbors</b>Each square's neighbors are the squares that touch it on an edge or a corner, like a queen in chess: up to 8 per square.</li>
+            <li><b>Moran's I, one number for the whole map</b>It asks whether heavy squares sit next to heavy squares. Near 0 means a random pattern; the real map scores 0.378.</li>
+            <li><b>999 shuffles</b>We shuffled the 300 values across the grid 999 times and scored each shuffle. None came close to the real map, so p = 0.001, the smallest possible with 999 shuffles.</li>
+            <li><b>Gi* hot spots, square by square</b>Gi* scores each square together with its neighbors. A hot spot is a whole neighborhood of heavy squares, not one lucky square. Squares on the site edge have fewer neighbors, so read edge results with care.</li>
+          </ul>
+        </div>
+        <figure class="perm" style="margin:0">
+          <svg viewBox="0 0 560 300" role="img" aria-labelledby="perm-title perm-desc"><title id="perm-title">Moran's I for 999 random shuffles compared with the real map</title><desc id="perm-desc">Gray bars show the shuffled values, all between -0.089 and 0.135. A red line marks the real map at 0.378.</desc><rect class="pbar" x="54.5" y="249.1" width="9.0" height="4.9"/><rect class="pbar" x="64.5" y="244.3" width="9.0" height="9.7"/><rect class="pbar" x="74.5" y="234.5" width="9.0" height="19.5"/><rect class="pbar" x="84.5" y="207.0" width="9.0" height="47.0"/><rect class="pbar" x="94.5" y="153.5" width="9.0" height="100.5"/><rect class="pbar" x="104.5" y="122.7" width="9.0" height="131.3"/><rect class="pbar" x="114.5" y="87.0" width="9.0" height="167.0"/><rect class="pbar" x="124.5" y="54.6" width="9.0" height="199.4"/><rect class="pbar" x="134.5" y="40.0" width="9.0" height="214.0"/><rect class="pbar" x="144.5" y="67.6" width="9.0" height="186.4"/><rect class="pbar" x="154.5" y="96.7" width="9.0" height="157.3"/><rect class="pbar" x="164.5" y="127.5" width="9.0" height="126.5"/><rect class="pbar" x="174.5" y="164.8" width="9.0" height="89.2"/><rect class="pbar" x="184.5" y="192.4" width="9.0" height="61.6"/><rect class="pbar" x="194.5" y="205.4" width="9.0" height="48.6"/><rect class="pbar" x="204.5" y="228.1" width="9.0" height="25.9"/><rect class="pbar" x="214.5" y="236.2" width="9.0" height="17.8"/><rect class="pbar" x="224.5" y="245.9" width="9.0" height="8.1"/><rect class="pbar" x="234.5" y="252.4" width="9.0" height="1.6"/><rect class="pbar" x="244.5" y="252.4" width="9.0" height="1.6"/><rect class="pbar" x="274.5" y="252.4" width="9.0" height="1.6"/><line class="axis" x1="44" x2="544" y1="254" y2="254"/><line class="axis" x1="44.0" x2="44.0" y1="254" y2="259"/><text x="44.0" y="274" text-anchor="middle">-0.1</text><line class="axis" x1="144.0" x2="144.0" y1="254" y2="259"/><text x="144.0" y="274" text-anchor="middle">0</text><line class="axis" x1="244.0" x2="244.0" y1="254" y2="259"/><text x="244.0" y="274" text-anchor="middle">0.1</text><line class="axis" x1="344.0" x2="344.0" y1="254" y2="259"/><text x="344.0" y="274" text-anchor="middle">0.2</text><line class="axis" x1="444.0" x2="444.0" y1="254" y2="259"/><text x="444.0" y="274" text-anchor="middle">0.3</text><line class="axis" x1="544.0" x2="544.0" y1="254" y2="259"/><text x="544.0" y="274" text-anchor="middle">0.4</text><text x="294" y="294" text-anchor="middle">Moran's I</text><text class="lab" x="144.0" y="26" text-anchor="middle">999 random shuffles</text><line class="real" x1="522.0" x2="522.0" y1="34" y2="254"/><text class="real-lab" x="514.0" y="48" text-anchor="end">Real map: 0.378</text></svg>
+          <figcaption><b>The real map is far more clustered than chance.</b> Gray bars: Moran's I for 999 random shuffles of the same 300 values (largest about 0.14). Red line: the real map.</figcaption>
         </figure>
       </div>
     </section>
@@ -724,7 +810,7 @@ footer p { margin: 0 0 .5rem; max-width: 46em; }
     o.push('<line class="even" x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(1) + '" y2="' + Y(1) + '"/>');
     o.push('<polyline class="curve" points="' + pts.map(function (p) { return X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1); }).join(" ") + '"/>');
     o.push('<circle class="mark" cx="' + X(.1) + '" cy="' + Y(y10) + '" r="5"/><text class="lab" x="' + (X(.1) + 12) + '" y="' + (Y(y10) + 18) + '">Densest 10% of area: ' + fmt(100 * y10, 0) + "% of wood</text>");
-    o.push('<circle class="mark" cx="' + X(x50) + '" cy="' + Y(.5) + '" r="5"/><text class="lab" x="' + (X(x50) + 12) + '" y="' + (Y(.5) - 8) + '">Half of all wood: ' + fmt(100 * x50, 0) + "% of area</text>");
+    o.push('<circle class="mark" cx="' + X(x50) + '" cy="' + Y(.5) + '" r="5"/><text class="lab" x="' + (X(x50) + 22) + '" y="' + (Y(.5) + 4) + '">Half of all wood: ' + fmt(100 * x50, 0) + "% of area</text>");
     o.push("</svg>");
     $("conc-chart").innerHTML = o.join("");
   }
