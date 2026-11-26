@@ -6,7 +6,7 @@ Input: docs/assets/site.json (site_run_v3). Each quadrant is drawn as a unit squ
 on the anonymized row/col grid; no coordinates are used. Variable: wood volume per
 hectare, (v_full + v_frag) / area_ha.
 
-Weights: queen contiguity, row-standardized. Inference: 999 conditional permutations,
+Weights: queen contiguity, row-standardized. Inference: 999 conditional permutations for Moran's I and 9,999 for Gi*,
 fixed seed. Outputs: poster/figures/spatial_stats.json (values + per-cell Gi* class).
 """
 from pathlib import Path
@@ -22,6 +22,7 @@ from esda.getisord import G_Local
 ROOT = Path(__file__).resolve().parents[1]
 SEED = 20261114
 PERM = 999
+PERM_GI = 9999  # Gi* needs finer p-values for the false discovery rate cutoff
 
 cells = json.loads((ROOT / "docs" / "assets" / "site.json").read_text())["cells"]
 gdf = gpd.GeoDataFrame(
@@ -42,15 +43,20 @@ mi = Moran(y, w, permutations=PERM)
 
 # Gi*: binary queen weights with the cell itself included (self-weight 1), then
 # row-standardized, as in the standard Getis-Ord Gi* hot spot analysis. Two-sided test.
-w_star = fill_diagonal(Queen.from_dataframe(gdf, use_index=False, silence_warnings=True), 1.0)
-w_star.transform = "r"
+# G_Local changes the weights it is given (esda 2.10), so each call gets a fresh copy.
+def w_star():
+    ws = fill_diagonal(Queen.from_dataframe(gdf, use_index=False, silence_warnings=True), 1.0)
+    ws.transform = "r"
+    return ws
+
+
 # esda draws Gi* permutations in numba, so np.random.seed does not control them;
 # pass seed= with n_jobs=1 for a reproducible run.
 # The first call in a process compiles the numba kernel and its seeded draw differs
 # from every later call; run it once as a warm-up and discard it.
-G_Local(y, w_star, transform="R", permutations=PERM, star=None, alternative="two-sided",
+G_Local(y, w_star(), transform="R", permutations=PERM_GI, star=None, alternative="two-sided",
         seed=SEED, n_jobs=1)
-gi = G_Local(y, w_star, transform="R", permutations=PERM, star=None, alternative="two-sided",
+gi = G_Local(y, w_star(), transform="R", permutations=PERM_GI, star=None, alternative="two-sided",
              seed=SEED, n_jobs=1)
 
 z, p = gi.Zs, gi.p_sim
@@ -80,7 +86,7 @@ from esda import fdr
 fdr_thr = float(fdr(p, 0.05))
 seed_check = []
 for s_ in (1, 2, 3):
-    g_ = G_Local(y, w_star, transform="R", permutations=PERM, star=None, alternative="two-sided",
+    g_ = G_Local(y, w_star(), transform="R", permutations=PERM_GI, star=None, alternative="two-sided",
                  seed=s_, n_jobs=1)
     seed_check.append({"seed": s_, "hot": int(((g_.p_sim <= 0.10) & (g_.Zs > 0)).sum()),
                        "cold": int(((g_.p_sim <= 0.10) & (g_.Zs < 0)).sum())})
@@ -108,6 +114,7 @@ out = {
     "cold_volume_share": round(float(vol[cold].sum() / vol.sum()), 3),
     "seed": SEED,
     "permutations": PERM,
+    "gi_permutations": PERM_GI,
     "cells": [{"row": int(r), "col": int(c), "gi_class": k, "gi_z": round(float(zz), 3), "p_sim": float(pp)}
               for r, c, k, zz, pp in zip(gdf["row"], gdf["col"], cls, z, p)],
 }
